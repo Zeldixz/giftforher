@@ -252,67 +252,197 @@
         };
 
         // ===================================
-        // AUDIO SYSTEM
+        // ENHANCED AUDIO SYSTEM (8-BIT MUSIC)
         // ===================================
 
         const Audio = {
             context: null,
             sounds: {},
-            music: {},
+            musicOscillators: [],
             currentMusic: null,
+            masterGain: null,
+            musicGain: null,
+            volume: 0.3,
 
             init() {
                 try {
                     this.context = new (window.AudioContext || window.webkitAudioContext)();
+                    this.masterGain = this.context.createGain();
+                    this.masterGain.gain.value = this.volume;
+                    this.masterGain.connect(this.context.destination);
+                    
+                    this.musicGain = this.context.createGain();
+                    this.musicGain.gain.value = 0.4;
+                    this.musicGain.connect(this.masterGain);
                 } catch(e) {
                     console.warn('Web Audio API not supported');
                 }
             },
 
-            playSound(name) {
+            // 8-bit style melodies for different scenes
+            melodies: {
+                menu: [
+                    { note: 523.25, duration: 0.3 }, // C5
+                    { note: 659.25, duration: 0.3 }, // E5
+                    { note: 783.99, duration: 0.3 }, // G5
+                    { note: 1046.50, duration: 0.6 }, // C6
+                    { note: 783.99, duration: 0.3 }, // G5
+                    { note: 659.25, duration: 0.3 }, // E5
+                    { note: 523.25, duration: 0.6 }  // C5
+                ],
+                adventure: [
+                    { note: 392.00, duration: 0.2 }, // G4
+                    { note: 523.25, duration: 0.2 }, // C5
+                    { note: 392.00, duration: 0.2 }, // G4
+                    { note: 523.25, duration: 0.4 }, // C5
+                    { note: 587.33, duration: 0.2 }, // D5
+                    { note: 659.25, duration: 0.4 }, // E5
+                    { note: 523.25, duration: 0.4 }  // C5
+                ],
+                boss: [
+                    { note: 293.66, duration: 0.15 }, // D4
+                    { note: 293.66, duration: 0.15 }, // D4
+                    { note: 293.66, duration: 0.15 }, // D4
+                    { note: 311.13, duration: 0.3 },  // D#4
+                    { note: 349.23, duration: 0.15 }, // F4
+                    { note: 349.23, duration: 0.15 }, // F4
+                    { note: 349.23, duration: 0.15 }, // F4
+                    { note: 369.99, duration: 0.3 }   // F#4
+                ],
+                victory: [
+                    { note: 523.25, duration: 0.2 }, // C5
+                    { note: 659.25, duration: 0.2 }, // E5
+                    { note: 783.99, duration: 0.2 }, // G5
+                    { note: 1046.50, duration: 0.3 }, // C6
+                    { note: 783.99, duration: 0.2 }, // G5
+                    { note: 1046.50, duration: 0.5 }  // C6
+                ]
+            },
+
+            playSound(name, volumeOverride) {
                 if (!this.context) return;
-                // Sound effects will be generated procedurally
+                
                 const oscillator = this.context.createOscillator();
                 const gainNode = this.context.createGain();
+                const now = this.context.currentTime;
                 
                 oscillator.connect(gainNode);
-                gainNode.connect(this.context.destination);
+                gainNode.connect(this.masterGain);
+                
+                const vol = volumeOverride !== undefined ? volumeOverride : 0.3;
                 
                 switch(name) {
                     case 'sword':
-                        oscillator.frequency.value = 200;
+                        // Swoosh sound
+                        oscillator.frequency.value = 300;
                         oscillator.type = 'square';
-                        gainNode.gain.setValueAtTime(0.3, this.context.currentTime);
-                        gainNode.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + 0.1);
-                        oscillator.start();
-                        oscillator.stop(this.context.currentTime + 0.1);
+                        gainNode.gain.setValueAtTime(vol, now);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                        oscillator.frequency.exponentialRampToValueAtTime(150, now + 0.1);
+                        oscillator.start(now);
+                        oscillator.stop(now + 0.1);
                         break;
+                        
                     case 'hit':
-                        oscillator.frequency.value = 100;
+                        // Impact sound
+                        oscillator.frequency.value = 80;
                         oscillator.type = 'sawtooth';
-                        gainNode.gain.setValueAtTime(0.3, this.context.currentTime);
-                        gainNode.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + 0.2);
-                        oscillator.start();
-                        oscillator.stop(this.context.currentTime + 0.2);
+                        gainNode.gain.setValueAtTime(vol, now);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                        oscillator.start(now);
+                        oscillator.stop(now + 0.15);
                         break;
+                        
                     case 'pickup':
+                        // Ascending chime
                         oscillator.frequency.value = 800;
                         oscillator.type = 'sine';
-                        gainNode.gain.setValueAtTime(0.3, this.context.currentTime);
-                        gainNode.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + 0.3);
-                        oscillator.start();
-                        oscillator.stop(this.context.currentTime + 0.3);
+                        gainNode.gain.setValueAtTime(vol, now);
+                        oscillator.frequency.exponentialRampToValueAtTime(1200, now + 0.15);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                        oscillator.start(now);
+                        oscillator.stop(now + 0.3);
+                        break;
+                        
+                    case 'enemyDeath':
+                        // Explosion
+                        oscillator.frequency.value = 200;
+                        oscillator.type = 'sawtooth';
+                        gainNode.gain.setValueAtTime(vol, now);
+                        oscillator.frequency.exponentialRampToValueAtTime(50, now + 0.3);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                        oscillator.start(now);
+                        oscillator.stop(now + 0.3);
+                        break;
+                        
+                    case 'menuMove':
+                        oscillator.frequency.value = 400;
+                        oscillator.type = 'square';
+                        gainNode.gain.setValueAtTime(vol * 0.5, now);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                        oscillator.start(now);
+                        oscillator.stop(now + 0.05);
+                        break;
+                        
+                    case 'menuSelect':
+                        oscillator.frequency.value = 600;
+                        oscillator.type = 'sine';
+                        gainNode.gain.setValueAtTime(vol * 0.6, now);
+                        oscillator.frequency.exponentialRampToValueAtTime(900, now + 0.1);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                        oscillator.start(now);
+                        oscillator.stop(now + 0.2);
                         break;
                 }
             },
 
             playMusic(name) {
-                // Music will be simple looping tones for now
                 if (this.currentMusic === name) return;
+                
+                this.stopMusic();
                 this.currentMusic = name;
+                
+                if (!this.context || !this.melodies[name]) return;
+                
+                const melody = this.melodies[name];
+                let time = this.context.currentTime;
+                const playMelody = () => {
+                    if (this.currentMusic !== name) return;
+                    
+                    melody.forEach((note, index) => {
+                        const osc = this.context.createOscillator();
+                        const gain = this.context.createGain();
+                        
+                        osc.connect(gain);
+                        gain.connect(this.musicGain);
+                        
+                        osc.frequency.value = note.note;
+                        osc.type = 'square';
+                        
+                        gain.gain.setValueAtTime(0.3, time);
+                        gain.gain.exponentialRampToValueAtTime(0.01, time + note.duration);
+                        
+                        osc.start(time);
+                        osc.stop(time + note.duration);
+                        
+                        this.musicOscillators.push(osc);
+                        time += note.duration;
+                    });
+                    
+                    // Loop the melody
+                    setTimeout(playMelody, melody.reduce((sum, n) => sum + n.duration, 0) * 1000);
+                };
+                
+                playMelody();
             },
 
             stopMusic() {
+                this.musicOscillators.forEach(osc => {
+                    try {
+                        osc.stop();
+                    } catch(e) {}
+                });
+                this.musicOscillators = [];
                 this.currentMusic = null;
             }
         };
@@ -1127,6 +1257,8 @@
                         this.y + this.height / 2,
                         '#FF4500'
                     );
+                    Audio.playSound('enemyDeath');
+                    addScreenShake(8);
                     return true; // Enemy defeated
                 }
                 return false;
@@ -1583,7 +1715,7 @@
                             if (this.selectedOption === 1 && !SaveSystem.hasSave()) {
                                 this.selectedOption = 2;
                             }
-                            Audio.playSound('pickup');
+                            Audio.playSound('menuMove');
                         }
                     }
                     if (e.key === 'ArrowUp' || e.key === 'w') {
@@ -1593,7 +1725,7 @@
                             if (this.selectedOption === 1 && !SaveSystem.hasSave()) {
                                 this.selectedOption = 0;
                             }
-                            Audio.playSound('pickup');
+                            Audio.playSound('menuMove');
                         }
                     }
                 };
@@ -1644,7 +1776,7 @@
 
             selectOption() {
                 console.log('selectOption called! Option:', this.selectedOption);
-                Audio.playSound('sword');
+                Audio.playSound('menuSelect');
                 switch(this.selectedOption) {
                     case 0: // New Game
                         console.log('Starting new game...');
@@ -2105,7 +2237,7 @@
                     { x: 400, y: 200, type: 'key' }
                 ];
 
-                Audio.playMusic('level1');
+                Audio.playMusic('adventure');
             },
 
             update(dt) {
@@ -2210,6 +2342,7 @@
             enter() {
                 this.player = GameState.states['LEVEL_1'].player || new Player(GAME_WIDTH / 2, GAME_HEIGHT - 100);
                 this.boss = new Boss(GAME_WIDTH / 2 - 16, 100, 30, "CHICA'S SHADOW", 'chica');
+                Audio.playMusic('boss');
             },
 
             update(dt) {
@@ -2440,6 +2573,7 @@
             enter() {
                 this.player = GameState.states['LEVEL_2'].player || new Player(GAME_WIDTH / 2, GAME_HEIGHT - 100);
                 this.boss = new Boss(GAME_WIDTH / 2 - 16, 100, 40, "FOXY THE SWIFT", 'foxy');
+                Audio.playMusic('boss');
             },
 
             update(dt) {
@@ -2622,6 +2756,7 @@
                 this.player = GameState.states['LEVEL_3']?.player || new Player(GAME_WIDTH / 2, GAME_HEIGHT - 100);
                 this.boss1 = new Boss(200, 150, 25, "TWIN 1", 'twins');
                 this.boss2 = new Boss(550, 150, 25, "TWIN 2", 'twins');
+                Audio.playMusic('boss');
             },
 
             update(dt) {
@@ -2818,6 +2953,7 @@
             enter() {
                 this.player = GameState.states['LEVEL_4']?.player || new Player(GAME_WIDTH / 2, GAME_HEIGHT - 100);
                 this.boss = new Boss(GAME_WIDTH / 2 - 16, 100, 50, "BONNIE'S RAGE", 'bonnie');
+                Audio.playMusic('boss');
             },
 
             update(dt) {
@@ -2951,6 +3087,7 @@
                 this.player = GameState.states['LEVEL_5']?.player || new Player(GAME_WIDTH / 2, GAME_HEIGHT - 100);
                 this.player.health = this.player.maxHealth; // Full health for final fight
                 this.boss = new Boss(GAME_WIDTH / 2 - 16, 200, 100, "GOLDEN FREDDY", 'golden-freddy');
+                Audio.playMusic('boss');
             },
 
             update(dt) {
