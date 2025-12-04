@@ -3455,28 +3455,35 @@
                 },
                 {
                     title: "REUNION",
-                    text: "Gabby: 'JOSE! You actually did it!'",
-                    duration: 3500,
+                    text: "Gabby: 'Jose! I knew you'd come! I never doubted you for a second!'",
+                    duration: 4000,
                     color: '#FF1493',
                     action: 'together'
                 },
                 {
                     title: "REUNION",
-                    text: "Jose: 'I told you... nothing can keep us apart.'",
-                    duration: 3500,
+                    text: "Jose: 'I'd cross any world for you, Gabby. Nothing could keep us apart. You're my everything.'",
+                    duration: 4500,
                     color: '#00FF00',
                     action: 'together'
                 },
                 {
+                    title: "REUNION",
+                    text: "Gabby: 'You're my hero... my protector... my love. Thank you for saving me.'",
+                    duration: 4000,
+                    color: '#FF69B4',
+                    action: 'together'
+                },
+                {
                     title: "TRUE LOVE",
-                    text: "Press SPACE to embrace ❤️",
+                    text: "Press SPACE to embrace",
                     duration: 10000,
                     color: '#FF69B4',
                     action: 'hug_prompt'
                 },
                 {
                     title: "HAPPILY EVER AFTER",
-                    text: "They escape together as the pizzeria crumbles...",
+                    text: "Together, they escape as the pizzeria crumbles behind them...",
                     duration: 4000,
                     color: '#FFD700',
                     action: 'escape'
@@ -3603,7 +3610,7 @@
                     ctx.drawImage(Sprites.jose.down[0], joseX, y, 48, 48);
                     ctx.drawImage(Sprites.gabby, gabbyX, y, 48, 48);
                     
-                    // Floating hearts
+                    // Floating 8-bit hearts (not emojis!)
                     const numHearts = this.hugged ? 40 : 15;
                     for (let i = 0; i < numHearts; i++) {
                         const angle = (this.timer / 20 + i * (360 / numHearts)) * Math.PI / 180;
@@ -3611,10 +3618,12 @@
                         const hx = GAME_WIDTH / 2 + Math.cos(angle) * radius;
                         const hy = GAME_HEIGHT / 2 - 40 + Math.sin(angle) * radius - (this.timer / 50);
                         
-                        ctx.fillStyle = i % 3 === 0 ? '#FF1493' : (i % 3 === 1 ? '#FF69B4' : '#FFD700');
-                        ctx.font = `${12 + Math.sin(this.timer / 100 + i) * 4}px Arial`;
-                        ctx.textAlign = 'center';
-                        ctx.fillText('❤️', hx, hy % GAME_HEIGHT);
+                        const scale = 1 + Math.sin(this.timer / 100 + i) * 0.3;
+                        ctx.save();
+                        ctx.translate(hx, hy % GAME_HEIGHT);
+                        ctx.scale(scale, scale);
+                        ctx.drawImage(Sprites.icon8BitHeart, -6, -6);
+                        ctx.restore();
                     }
                     
                     if (this.hugged) {
@@ -3623,6 +3632,16 @@
                         ctx.beginPath();
                         ctx.arc(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 40, 100, 0, Math.PI * 2);
                         ctx.fill();
+                    }
+                    
+                    // Show 8-bit heart icon in hug prompt
+                    if (currentScene.action === 'hug_prompt') {
+                        const heartSize = 2 + Math.sin(this.timer / 200) * 0.5;
+                        ctx.save();
+                        ctx.translate(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 80);
+                        ctx.scale(heartSize, heartSize);
+                        ctx.drawImage(Sprites.icon8BitHeart, -6, -6);
+                        ctx.restore();
                     }
                 } else if (currentScene.action === 'escape') {
                     // Silhouettes running
@@ -3660,17 +3679,19 @@
                         "You are my heart, my joy, my everything.",
                         "",
                         "Love always and forever,",
-                        "Jose 💕",
+                        "Jose",
                         "",
                         "",
                         "Press SPACE to return to menu"
                     ];
                     
-                    // Draw heart frame
-                    ctx.fillStyle = '#FF1493';
-                    ctx.font = '60px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('❤️', GAME_WIDTH / 2, 100);
+                    // Draw 8-bit heart frame (not emoji!)
+                    const heartScale = 5 + Math.sin(this.timer / 300) * 0.5;
+                    ctx.save();
+                    ctx.translate(GAME_WIDTH / 2, 100);
+                    ctx.scale(heartScale, heartScale);
+                    ctx.drawImage(Sprites.icon8BitHeart, -6, -6);
+                    ctx.restore();
                     
                     // Draw messages
                     ctx.font = '18px "Courier New"';
