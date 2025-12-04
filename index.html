@@ -476,29 +476,35 @@
                 return canvas;
             },
 
-            // Jose sprite (Link-style hero)
+            // Jose sprite (FNAF mini-game style - darker, more pixelated)
             createJose() {
                 return {
                     down: [
                         this.create(16, 16, (ctx) => {
-                            // Head (brown hair)
-                            ctx.fillStyle = '#8B4513';
+                            // Shadow outline (FNAF style)
+                            ctx.fillStyle = '#000';
+                            ctx.fillRect(3, 1, 10, 15);
+                            // Head (darker brown hair)
+                            ctx.fillStyle = '#5A3A1A';
                             ctx.fillRect(4, 2, 8, 4);
-                            // Face
-                            ctx.fillStyle = '#FFD4A3';
+                            // Face (paler)
+                            ctx.fillStyle = '#C7A882';
                             ctx.fillRect(5, 4, 6, 4);
-                            // Eyes
+                            // Eyes (bigger, more visible)
+                            ctx.fillStyle = '#FFF';
+                            ctx.fillRect(6, 5, 2, 2);
+                            ctx.fillRect(9, 5, 2, 2);
                             ctx.fillStyle = '#000';
                             ctx.fillRect(6, 5, 1, 1);
                             ctx.fillRect(9, 5, 1, 1);
-                            // Green tunic
-                            ctx.fillStyle = '#2D8B2D';
+                            // Dark shirt (not green)
+                            ctx.fillStyle = '#1a1a2e';
                             ctx.fillRect(4, 8, 8, 6);
                             // Belt
-                            ctx.fillStyle = '#8B4513';
+                            ctx.fillStyle = '#3a3a3a';
                             ctx.fillRect(4, 10, 8, 1);
-                            // Legs
-                            ctx.fillStyle = '#1a5c1a';
+                            // Legs (dark pants)
+                            ctx.fillStyle = '#0a0a1a';
                             ctx.fillRect(5, 14, 2, 2);
                             ctx.fillRect(9, 14, 2, 2);
                         }),
@@ -613,46 +619,73 @@
                 };
             },
 
-            // Gabby sprite (for cutscenes)
+            // Gabby sprite (FNAF mini-game style)
             createGabby() {
                 return this.create(16, 16, (ctx) => {
-                    // Blonde hair
-                    ctx.fillStyle = '#FFD700';
+                    // Shadow
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(3, 1, 10, 15);
+                    // Blonde hair (darker blonde)
+                    ctx.fillStyle = '#B8860B';
                     ctx.fillRect(4, 2, 8, 4);
-                    // Face
-                    ctx.fillStyle = '#FFD4A3';
+                    // Face (pale)
+                    ctx.fillStyle = '#C7A882';
                     ctx.fillRect(5, 4, 6, 4);
-                    // Eyes
-                    ctx.fillStyle = '#4169E1';
+                    // Eyes (brighter, more visible)
+                    ctx.fillStyle = '#FFF';
+                    ctx.fillRect(6, 5, 2, 2);
+                    ctx.fillRect(9, 5, 2, 2);
+                    ctx.fillStyle = '#6495ED';
                     ctx.fillRect(6, 5, 1, 1);
                     ctx.fillRect(9, 5, 1, 1);
                     // Smile
                     ctx.fillStyle = '#000';
                     ctx.fillRect(6, 7, 4, 1);
-                    // Blue dress
-                    ctx.fillStyle = '#4169E1';
+                    // Purple/Blue dress (darker)
+                    ctx.fillStyle = '#4A4A8A';
                     ctx.fillRect(4, 8, 8, 8);
                 });
             },
 
-            // Basic animatronic enemy
+            // FNAF-style animatronic (more detailed and menacing)
             createBasicAnimatronic() {
                 return this.create(16, 16, (ctx) => {
-                    // Body (gray/brown)
-                    ctx.fillStyle = '#555';
+                    // Shadow
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(3, 3, 11, 13);
+                    // Body (worn brown with visible endoskeleton parts)
+                    ctx.fillStyle = '#654321';
                     ctx.fillRect(4, 4, 8, 10);
-                    // Eyes (glowing red)
-                    ctx.fillStyle = '#FF0000';
-                    ctx.fillRect(5, 6, 2, 2);
-                    ctx.fillRect(9, 6, 2, 2);
-                    // Teeth
+                    // Endoskeleton showing through (metallic gray)
+                    ctx.fillStyle = '#505050';
+                    ctx.fillRect(4, 7, 2, 3);
+                    ctx.fillRect(10, 7, 2, 3);
+                    // Head/Face
+                    ctx.fillStyle = '#654321';
+                    ctx.fillRect(4, 3, 8, 5);
+                    // Eyes (WHITE with black pupils - classic FNAF)
                     ctx.fillStyle = '#FFF';
-                    ctx.fillRect(6, 10, 1, 2);
-                    ctx.fillRect(8, 10, 1, 2);
-                    // Ears
-                    ctx.fillStyle = '#555';
-                    ctx.fillRect(3, 3, 2, 3);
-                    ctx.fillRect(11, 3, 2, 3);
+                    ctx.fillRect(5, 4, 2, 3);
+                    ctx.fillRect(9, 4, 2, 3);
+                    // Pupils (small black dots)
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(6, 5, 1, 1);
+                    ctx.fillRect(10, 5, 1, 1);
+                    // Teeth (sharp and prominent)
+                    ctx.fillStyle = '#FFF';
+                    ctx.fillRect(5, 10, 1, 2);
+                    ctx.fillRect(7, 10, 1, 2);
+                    ctx.fillRect(9, 10, 1, 2);
+                    ctx.fillRect(11, 10, 1, 2);
+                    // Ears (round, FNAF Freddy-style)
+                    ctx.fillStyle = '#654321';
+                    ctx.fillRect(2, 2, 3, 3);
+                    ctx.fillRect(11, 2, 3, 3);
+                    // Bow tie
+                    ctx.fillStyle = '#8B0000';
+                    ctx.fillRect(6, 8, 4, 1);
+                    ctx.fillRect(5, 9, 2, 1);
+                    ctx.fillRect(9, 9, 2, 1);
                 });
             },
 
@@ -684,6 +717,44 @@
                     // Key teeth
                     ctx.fillRect(9, 12, 2, 2);
                 });
+            },
+
+            // Door sprite (FNAF-style exit)
+            createDoor() {
+                return this.create(32, 48, (ctx) => {
+                    // Door frame
+                    ctx.fillStyle = '#2a2a2a';
+                    ctx.fillRect(0, 0, 32, 48);
+                    // Door panels
+                    ctx.fillStyle = '#4a3a2a';
+                    ctx.fillRect(2, 2, 28, 44);
+                    // Door panels detail
+                    ctx.fillStyle = '#3a2a1a';
+                    ctx.fillRect(4, 4, 24, 18);
+                    ctx.fillRect(4, 24, 24, 18);
+                    // Door handle
+                    ctx.fillStyle = '#DAA520';
+                    ctx.fillRect(24, 22, 4, 4);
+                    // Keyhole
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(14, 24, 4, 2);
+                });
+            },
+
+            // Wall sprite for clear boundaries
+            createWall() {
+                return this.create(16, 16, (ctx) => {
+                    // Dark brick wall (FNAF pizzeria style)
+                    ctx.fillStyle = '#1a1a1a';
+                    ctx.fillRect(0, 0, 16, 16);
+                    // Brick lines
+                    ctx.fillStyle = '#0a0a0a';
+                    ctx.fillRect(0, 0, 16, 1);
+                    ctx.fillRect(0, 8, 16, 1);
+                    ctx.fillRect(0, 0, 1, 16);
+                    ctx.fillRect(8, 0, 1, 8);
+                    ctx.fillRect(8, 9, 1, 7);
+                });
             }
         };
 
@@ -694,6 +765,8 @@
         Sprites.heart = Sprites.createHeart(false);
         Sprites.heartEmpty = Sprites.createHeart(true);
         Sprites.key = Sprites.createKey();
+        Sprites.door = Sprites.createDoor();
+        Sprites.wall = Sprites.createWall();
 
         // ===================================
         // PARTICLE SYSTEM
@@ -1734,44 +1807,122 @@
                 ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
                 ctx.fillRect(this.x + 4, this.y + this.height, this.width - 4, 8);
 
-                // Boss body (larger, more detailed)
-                ctx.fillStyle = this.getBossColor();
-                ctx.fillRect(this.x, this.y, this.width, this.height);
+                // Special rendering for Golden Freddy (more detailed)
+                if (this.bossType === 'golden-freddy') {
+                    // Body (golden/yellow with darker shading)
+                    ctx.fillStyle = '#B8860B';  // Dark golden
+                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                    ctx.fillStyle = '#FFD700';  // Bright golden highlight
+                    ctx.fillRect(this.x + 4, this.y + 4, this.width - 8, this.height - 8);
+                    
+                    // Endoskeleton showing (metallic gray - wear and tear)
+                    ctx.fillStyle = '#505050';
+                    ctx.fillRect(this.x + 8, this.y + this.height / 2, 4, this.height / 3);
+                    ctx.fillRect(this.x + this.width - 12, this.y + this.height / 2, 4, this.height / 3);
+                    
+                    // Head
+                    ctx.fillStyle = '#FFD700';
+                    ctx.fillRect(this.x + 4, this.y + 4, this.width - 8, this.height / 3);
+                    
+                    // Eyes (FNAF-style - WHITE with black pupils, not red!)
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(this.x + 8, this.y + 10, 8, 10);  // Eye sockets
+                    ctx.fillRect(this.x + this.width - 16, this.y + 10, 8, 10);
+                    ctx.fillStyle = '#FFF';
+                    ctx.fillRect(this.x + 9, this.y + 11, 6, 8);
+                    ctx.fillRect(this.x + this.width - 15, this.y + 11, 6, 8);
+                    // Small black pupils
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(this.x + 11, this.y + 15, 2, 2);
+                    ctx.fillRect(this.x + this.width - 13, this.y + 15, 2, 2);
+                    
+                    // Ears (rounded, Freddy-style)
+                    ctx.fillStyle = '#B8860B';
+                    ctx.fillRect(this.x - 2, this.y + 2, 6, 8);
+                    ctx.fillRect(this.x + this.width - 4, this.y + 2, 6, 8);
+                    
+                    // Bow tie (black, classic Freddy)
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(this.x + this.width / 2 - 6, this.y + this.height / 3 + 4, 12, 3);
+                    ctx.fillRect(this.x + this.width / 2 - 8, this.y + this.height / 3 + 5, 4, 2);
+                    ctx.fillRect(this.x + this.width / 2 + 4, this.y + this.height / 3 + 5, 4, 2);
+                    
+                    // Teeth (sharp, menacing)
+                    ctx.fillStyle = '#FFF';
+                    for (let i = 0; i < 5; i++) {
+                        ctx.fillRect(this.x + 8 + i * 4, this.y + this.height / 3 - 2, 2, 4);
+                    }
+                    
+                    // Phase-specific effects
+                    if (this.phase >= 2) {
+                        // Glowing aura in later phases
+                        const pulse = Math.sin(Date.now() / 100) * 0.3 + 0.7;
+                        ctx.fillStyle = `rgba(255, 215, 0, ${pulse * 0.3})`;
+                        ctx.fillRect(this.x - 4, this.y - 4, this.width + 8, this.height + 8);
+                    }
+                    if (this.phase === 3) {
+                        // Red eyes in phase 3 (enrage)
+                        ctx.fillStyle = '#FF0000';
+                        ctx.fillRect(this.x + 11, this.y + 15, 2, 2);
+                        ctx.fillRect(this.x + this.width - 13, this.y + 15, 2, 2);
+                    }
+                } else {
+                    // Other bosses - simpler rendering
+                    ctx.fillStyle = this.getBossColor();
+                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                    
+                    // Boss eyes (glowing red for other bosses)
+                    ctx.fillStyle = '#FF0000';
+                    ctx.fillRect(this.x + 8, this.y + 8, 6, 6);
+                    ctx.fillRect(this.x + this.width - 14, this.y + 8, 6, 6);
+                }
 
-                // Boss eyes (glowing)
-                ctx.fillStyle = '#FF0000';
-                ctx.fillRect(this.x + 8, this.y + 8, 6, 6);
-                ctx.fillRect(this.x + this.width - 14, this.y + 8, 6, 6);
-
-                // Boss health bar (larger)
-                const barWidth = 200;
+                // Boss health bar (larger, more prominent)
+                const barWidth = 250;
                 const barX = GAME_WIDTH / 2 - barWidth / 2;
                 ctx.fillStyle = '#000';
-                ctx.fillRect(barX - 2, 10 - 2, barWidth + 4, 24);
+                ctx.fillRect(barX - 3, 8 - 3, barWidth + 6, 26);
+                ctx.fillStyle = '#400';
+                ctx.fillRect(barX, 8, barWidth, 20);
                 ctx.fillStyle = '#FF0000';
-                ctx.fillRect(barX, 10, barWidth, 20);
-                ctx.fillStyle = '#00FF00';
-                ctx.fillRect(barX, 10, barWidth * (this.health / this.maxHealth), 20);
+                ctx.fillRect(barX, 8, barWidth * (this.health / this.maxHealth), 20);
+                
+                // Health bar glow
+                if (this.health < this.maxHealth * 0.3) {
+                    ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+                    ctx.fillRect(barX - 2, 10, barWidth * (this.health / this.maxHealth) + 4, 16);
+                }
 
-                // Boss name
-                ctx.fillStyle = '#FFF';
-                ctx.font = 'bold 16px "Courier New"';
+                // Boss name with shadow
+                ctx.fillStyle = '#000';
+                ctx.font = 'bold 20px "Courier New"';
                 ctx.textAlign = 'center';
+                ctx.fillText(this.name, GAME_WIDTH / 2 + 2, 52);
+                ctx.fillStyle = this.bossType === 'golden-freddy' ? '#FFD700' : '#FFF';
                 ctx.fillText(this.name, GAME_WIDTH / 2, 50);
                 ctx.textAlign = 'left';
 
-                // Phase indicator
+                // Phase indicator for Golden Freddy
                 if (this.bossType === 'golden-freddy') {
-                    ctx.fillText(`Phase ${this.phase}`, GAME_WIDTH / 2 - 30, 70);
+                    ctx.fillStyle = '#FFD700';
+                    ctx.font = 'bold 16px "Courier New"';
+                    ctx.textAlign = 'center';
+                    const phaseText = `⚡ PHASE ${this.phase}/3 ⚡`;
+                    ctx.fillStyle = '#000';
+                    ctx.fillText(phaseText, GAME_WIDTH / 2 + 1, 71);
+                    ctx.fillStyle = this.phase === 3 ? '#FF0000' : '#FFD700';
+                    ctx.fillText(phaseText, GAME_WIDTH / 2, 70);
+                    ctx.textAlign = 'left';
                 }
 
                 // Draw minions
                 this.minions.forEach(m => m.draw(ctx));
 
-                // Draw projectiles (enhanced for boss)
-                ctx.fillStyle = '#FFD700';
-                ctx.shadowColor = '#FFD700';
-                ctx.shadowBlur = 10;
+                // Draw projectiles (golden glow for Golden Freddy)
+                const projectileColor = this.bossType === 'golden-freddy' ? '#FFD700' : '#FF6347';
+                ctx.fillStyle = projectileColor;
+                ctx.shadowColor = projectileColor;
+                ctx.shadowBlur = 15;
                 this.projectiles.forEach(p => {
                     ctx.fillRect(p.x - 4, p.y - 4, 8, 8);
                 });
@@ -2223,61 +2374,61 @@
             scenes: [
                 { 
                     title: "THE DATE",
-                    text: "Jose: 'This place is amazing, right Gabby?'",
+                    text: "Jose: 'I'm so glad we came here tonight, Gabby.'",
                     duration: 3500,
                     color: '#FFD700'
                 },
                 {
                     title: "THE DATE", 
-                    text: "Gabby: 'Anything with you is perfect, Jose. ❤️'",
+                    text: "Gabby: 'Me too! This is the best date ever! ❤️'",
                     duration: 3500,
                     color: '#FF69B4'
                 },
                 { 
-                    title: "THE ATTACK",
-                    text: "***THE LIGHTS FLICKER***",
-                    duration: 2000,
+                    title: "SOMETHING'S WRONG",
+                    text: "***THE LIGHTS BEGIN TO FLICKER***",
+                    duration: 2200,
                     color: '#FF0000'
                 },
                 { 
                     title: "THE ATTACK",
-                    text: "The animatronics' eyes glow red...",
+                    text: "The animatronics' eyes suddenly glow red...",
                     duration: 2500,
                     color: '#8B0000'
                 },
                 { 
                     title: "THE ATTACK",
-                    text: "Gabby: 'JOSE! HELP ME!'",
+                    text: "Gabby: 'Jose! Something's wrong!'",
                     duration: 2500,
                     color: '#FF1493'
                 },
                 { 
                     title: "THE CAPTURE",
-                    text: "GOLDEN FREDDY appears from the shadows!",
+                    text: "A massive golden figure emerges from the shadows!",
                     duration: 2500,
                     color: '#DAA520'
                 },
                 { 
                     title: "THE CAPTURE",
-                    text: "He drags Gabby into the darkness...",
+                    text: "Golden Freddy grabs Gabby! 'JOSE! HELP!'",
                     duration: 3000,
-                    color: '#FFD700'
+                    color: '#FF6347'
                 },
                 { 
                     title: "JOSE'S DETERMINATION",
-                    text: "Jose: 'GABBY!! I'M COMING FOR YOU!'",
+                    text: "Jose: 'GABBY! I'M COMING! HOLD ON!'",
                     duration: 3000,
                     color: '#00FF00'
                 },
                 { 
                     title: "JOSE'S DETERMINATION",
-                    text: "Jose: 'Nothing will keep us apart!'",
-                    duration: 3000,
+                    text: "Jose: 'I'll fight through anything to save you!'",
+                    duration: 3200,
                     color: '#00FF00'
                 },
                 { 
                     title: "THE QUEST BEGINS",
-                    text: "A LOVE WORTH FIGHTING FOR...",
+                    text: "TRUE LOVE WILL LIGHT THE WAY...",
                     duration: 3500,
                     color: '#FF1493'
                 }
@@ -2426,42 +2577,112 @@
             enemies: [],
             items: [],
             walls: [],
-            floor: null,
+            door: null,
+            doorUnlocked: false,
 
             enter() {
-                // Initialize player
-                this.player = new Player(GAME_WIDTH / 2, GAME_HEIGHT / 2);
+                // Initialize player at spawn point (bottom center)
+                this.player = new Player(GAME_WIDTH / 2, GAME_HEIGHT - 80);
 
-                // Create enemies
-                for (let i = 0; i < 4; i++) {
-                    const enemy = new Enemy(
-                        100 + i * 150,
-                        100 + (i % 2) * 200,
-                        3, // health
-                        1  // speed
-                    );
+                // Create clear room boundaries with visible walls (FNAF-style compact room)
+                this.walls = [];
+                
+                // Top wall (except where door is)
+                for (let x = 0; x < GAME_WIDTH; x += TILE_SIZE) {
+                    if (x < GAME_WIDTH / 2 - 32 || x > GAME_WIDTH / 2 + 16) {
+                        this.walls.push({ x, y: 0, width: TILE_SIZE, height: TILE_SIZE });
+                    }
+                }
+                // Bottom wall
+                for (let x = 0; x < GAME_WIDTH; x += TILE_SIZE) {
+                    this.walls.push({ x, y: GAME_HEIGHT - TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE });
+                }
+                // Left wall
+                for (let y = TILE_SIZE; y < GAME_HEIGHT - TILE_SIZE; y += TILE_SIZE) {
+                    this.walls.push({ x: 0, y, width: TILE_SIZE, height: TILE_SIZE });
+                }
+                // Right wall
+                for (let y = TILE_SIZE; y < GAME_HEIGHT - TILE_SIZE; y += TILE_SIZE) {
+                    this.walls.push({ x: GAME_WIDTH - TILE_SIZE, y, width: TILE_SIZE, height: TILE_SIZE });
+                }
+                
+                // Internal walls creating simple maze structure
+                // Vertical dividers
+                for (let y = 100; y < 300; y += TILE_SIZE) {
+                    this.walls.push({ x: 200, y, width: TILE_SIZE, height: TILE_SIZE });
+                    this.walls.push({ x: GAME_WIDTH - 200, y, width: TILE_SIZE, height: TILE_SIZE });
+                }
+                
+                // Horizontal dividers
+                for (let x = 250; x < 550; x += TILE_SIZE) {
+                    if (x < GAME_WIDTH / 2 - 50 || x > GAME_WIDTH / 2 + 50) {
+                        this.walls.push({ x, y: 300, width: TILE_SIZE, height: TILE_SIZE });
+                    }
+                }
+
+                // Exit door at top center (clearly visible)
+                this.door = {
+                    x: GAME_WIDTH / 2 - 16,
+                    y: 16,
+                    width: 32,
+                    height: 48,
+                    locked: true
+                };
+
+                // Create fewer enemies in strategic positions
+                const enemyPositions = [
+                    { x: 80, y: 80 },
+                    { x: GAME_WIDTH - 80, y: 80 },
+                    { x: 150, y: GAME_HEIGHT - 150 },
+                    { x: GAME_WIDTH - 150, y: GAME_HEIGHT - 150 }
+                ];
+                
+                for (const pos of enemyPositions) {
+                    const enemy = new Enemy(pos.x, pos.y, 3, 1);
                     enemy.patrolPoints = [
-                        { x: enemy.x, y: enemy.y },
-                        { x: enemy.x + 100, y: enemy.y },
-                        { x: enemy.x + 100, y: enemy.y + 100 },
-                        { x: enemy.x, y: enemy.y + 100 }
+                        { x: pos.x, y: pos.y },
+                        { x: pos.x + 60, y: pos.y },
+                        { x: pos.x + 60, y: pos.y + 60 },
+                        { x: pos.x, y: pos.y + 60 }
                     ];
                     this.enemies.push(enemy);
                 }
 
-                // Create items (keys)
+                // Keys placed in visible, accessible locations
                 this.items = [
-                    { x: 100, y: 100, type: 'key' },
-                    { x: 600, y: 400, type: 'key' },
-                    { x: 400, y: 200, type: 'key' }
+                    { x: 70, y: 70, type: 'key' },
+                    { x: GAME_WIDTH - 70, y: 70, type: 'key' },
+                    { x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2, type: 'key' }
                 ];
 
                 Audio.playMusic('adventure');
             },
 
+            checkWallCollision(x, y, width, height) {
+                for (const wall of this.walls) {
+                    if (x < wall.x + wall.width &&
+                        x + width > wall.x &&
+                        y < wall.y + wall.height &&
+                        y + height > wall.y) {
+                        return true;
+                    }
+                }
+                return false;
+            },
+
             update(dt) {
+                // Store previous position for collision resolution
+                const prevX = this.player.x;
+                const prevY = this.player.y;
+                
                 // Update player
                 this.player.update(dt);
+
+                // Check wall collisions and revert if colliding
+                if (this.checkWallCollision(this.player.x, this.player.y, this.player.width, this.player.height)) {
+                    this.player.x = prevX;
+                    this.player.y = prevY;
+                }
 
                 // Update enemies
                 this.enemies = this.enemies.filter(enemy => {
@@ -2482,7 +2703,7 @@
                     const dy = item.y - this.player.y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
 
-                    if (dist < 20) {
+                    if (dist < 25) {
                         if (item.type === 'key') {
                             this.player.keys++;
                             Audio.playSound('pickup');
@@ -2493,34 +2714,84 @@
                     return true;
                 });
 
+                // Update door unlock status
+                if (this.player.keys >= 3 && this.enemies.length === 0) {
+                    this.door.locked = false;
+                    this.doorUnlocked = true;
+                }
+
+                // Check if player reached unlocked door
+                if (!this.door.locked) {
+                    const doorDist = Math.sqrt(
+                        (this.door.x + 16 - this.player.x) ** 2 + 
+                        (this.door.y + 24 - this.player.y) ** 2
+                    );
+                    if (doorDist < 50) {
+                        // Progress to boss level with transition
+                        Transition.start('fade', () => {
+                            GameState.setState('BOSS_1');
+                        }, 800);
+                    }
+                }
+
                 // Update particles
                 ParticleSystem.update(dt);
-
-                // Check win condition (all keys collected)
-                if (this.player.keys >= 3 && this.enemies.length === 0) {
-                    // Progress to boss or next level
-                    // GameState.setState('BOSS_1');
-                }
             },
 
             draw(ctx) {
-                // Draw floor
-                ctx.fillStyle = '#2a2a3e';
+                // Draw dark FNAF-style floor
+                ctx.fillStyle = '#0a0a0a';
                 ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
-                // Draw checkered floor pattern
+                // Draw checkered floor pattern (darker, more FNAF-like)
                 for (let x = 0; x < GAME_WIDTH; x += TILE_SIZE * 2) {
                     for (let y = 0; y < GAME_HEIGHT; y += TILE_SIZE * 2) {
-                        if ((x + y) % (TILE_SIZE * 4) === 0) {
-                            ctx.fillStyle = '#3a3a4e';
+                        if ((x / (TILE_SIZE * 2) + y / (TILE_SIZE * 2)) % 2 === 0) {
+                            ctx.fillStyle = '#1a1a1a';
                             ctx.fillRect(x, y, TILE_SIZE * 2, TILE_SIZE * 2);
                         }
                     }
                 }
 
-                // Draw items
+                // Draw walls with FNAF brick texture
+                this.walls.forEach(wall => {
+                    ctx.drawImage(Sprites.wall, wall.x, wall.y);
+                });
+
+                // Draw door with clear visual feedback
+                ctx.drawImage(Sprites.door, this.door.x, this.door.y);
+                if (this.door.locked) {
+                    // Locked indicator (red overlay)
+                    ctx.fillStyle = 'rgba(200, 0, 0, 0.5)';
+                    ctx.fillRect(this.door.x, this.door.y, this.door.width, this.door.height);
+                    // Lock symbol
+                    ctx.fillStyle = '#FF0000';
+                    ctx.font = 'bold 24px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('🔒', this.door.x + 16, this.door.y + 32);
+                } else {
+                    // Unlocked indicator (green glow)
+                    const pulse = Math.sin(Date.now() / 200) * 0.3 + 0.5;
+                    ctx.fillStyle = `rgba(0, 255, 0, ${pulse * 0.4})`;
+                    ctx.fillRect(this.door.x - 8, this.door.y - 8, this.door.width + 16, this.door.height + 16);
+                    ctx.fillStyle = 'rgba(0, 255, 0, 0.3)';
+                    ctx.fillRect(this.door.x, this.door.y, this.door.width, this.door.height);
+                    // Arrow pointing to exit
+                    ctx.fillStyle = '#00FF00';
+                    ctx.font = 'bold 28px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('↑', this.door.x + 16, this.door.y + 35);
+                    ctx.fillText('EXIT', this.door.x + 16, this.door.y - 15);
+                }
+
+                // Draw items with glow effect
                 this.items.forEach(item => {
                     if (item.type === 'key') {
+                        // Pulsing glow
+                        const keyGlow = Math.sin(Date.now() / 250) * 0.4 + 0.6;
+                        ctx.fillStyle = `rgba(255, 215, 0, ${keyGlow * 0.5})`;
+                        ctx.fillRect(item.x - 4, item.y - 4, 24, 24);
+                        // Draw key sprite
                         ctx.drawImage(Sprites.key, item.x, item.y);
                     }
                 });
@@ -2537,14 +2808,53 @@
                 // Draw UI
                 UI.draw(ctx, this.player, 1);
 
-                // Story text
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-                ctx.fillRect(0, GAME_HEIGHT - 80, GAME_WIDTH, 80);
-                ctx.fillStyle = '#FFD700';
-                ctx.font = '16px "Courier New"';
+                // Story text with clear, dynamic objective
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+                ctx.fillRect(0, GAME_HEIGHT - 110, GAME_WIDTH, 110);
+                
+                // Border for text area
+                ctx.strokeStyle = '#FFD700';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(0, GAME_HEIGHT - 110, GAME_WIDTH, 110);
+                
                 ctx.textAlign = 'center';
-                ctx.fillText('Find 3 keys to unlock the kitchen door!', GAME_WIDTH / 2, GAME_HEIGHT - 50);
-                ctx.fillText(`Keys: ${this.player.keys}/3`, GAME_WIDTH / 2, GAME_HEIGHT - 25);
+                
+                // Dynamic objective text
+                if (this.player.keys < 3) {
+                    ctx.fillStyle = '#FFD700';
+                    ctx.font = 'bold 20px "Courier New"';
+                    ctx.fillText('🔑 COLLECT ALL KEYS TO UNLOCK THE EXIT 🔑', GAME_WIDTH / 2, GAME_HEIGHT - 80);
+                    
+                    ctx.fillStyle = '#FFF';
+                    ctx.font = '16px "Courier New"';
+                    ctx.fillText('Defeat animatronics and search the dining hall!', GAME_WIDTH / 2, GAME_HEIGHT - 55);
+                } else if (this.enemies.length > 0) {
+                    ctx.fillStyle = '#00FF00';
+                    ctx.font = 'bold 20px "Courier New"';
+                    ctx.fillText('✓ ALL KEYS FOUND! Defeat remaining enemies!', GAME_WIDTH / 2, GAME_HEIGHT - 80);
+                    
+                    ctx.fillStyle = '#FFF';
+                    ctx.font = '16px "Courier New"';
+                    ctx.fillText(`Animatronics remaining: ${this.enemies.length}`, GAME_WIDTH / 2, GAME_HEIGHT - 55);
+                } else {
+                    // Victory - door unlocked
+                    const flashColor = Math.floor(Date.now() / 300) % 2 === 0 ? '#00FF00' : '#FFFF00';
+                    ctx.fillStyle = flashColor;
+                    ctx.font = 'bold 22px "Courier New"';
+                    ctx.fillText('🚪 EXIT UNLOCKED! GO TO THE DOOR! 🚪', GAME_WIDTH / 2, GAME_HEIGHT - 80);
+                    
+                    ctx.fillStyle = '#00FF00';
+                    ctx.font = 'bold 18px "Courier New"';
+                    ctx.fillText('>>> HEAD NORTH TO ESCAPE <<<', GAME_WIDTH / 2, GAME_HEIGHT - 55);
+                }
+                
+                // Stats
+                ctx.fillStyle = '#FFD700';
+                ctx.font = 'bold 16px "Courier New"';
+                const keysText = `Keys: ${this.player.keys}/3`;
+                const enemiesText = `Enemies: ${this.enemies.length}/4`;
+                ctx.fillText(`${keysText}  |  ${enemiesText}`, GAME_WIDTH / 2, GAME_HEIGHT - 25);
+                
                 ctx.textAlign = 'left';
             }
         };
@@ -3382,16 +3692,23 @@
                 },
                 {
                     title: "REUNION",
-                    text: "Gabby: 'JOSE! You actually did it!'",
+                    text: "Gabby: 'Jose! I knew you'd come! I never doubted you!'",
                     duration: 3500,
                     color: '#FF1493',
                     action: 'together'
                 },
                 {
                     title: "REUNION",
-                    text: "Jose: 'I told you... nothing can keep us apart.'",
+                    text: "Jose: 'I'd cross any world for you, Gabby. Always.'",
                     duration: 3500,
                     color: '#00FF00',
+                    action: 'together'
+                },
+                {
+                    title: "REUNION",
+                    text: "Gabby: 'You're my hero... my everything.'",
+                    duration: 3200,
+                    color: '#FF69B4',
                     action: 'together'
                 },
                 {
