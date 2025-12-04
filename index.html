@@ -405,32 +405,41 @@
                 if (!this.context || !this.melodies[name]) return;
                 
                 const melody = this.melodies[name];
-                let time = this.context.currentTime;
+                const melodyDuration = melody.reduce((sum, n) => sum + n.duration, 0) * 1000;
+                
                 const playMelody = () => {
                     if (this.currentMusic !== name) return;
                     
-                    melody.forEach((note, index) => {
-                        const osc = this.context.createOscillator();
-                        const gain = this.context.createGain();
-                        
-                        osc.connect(gain);
-                        gain.connect(this.musicGain);
-                        
-                        osc.frequency.value = note.note;
-                        osc.type = 'square';
-                        
-                        gain.gain.setValueAtTime(0.3, time);
-                        gain.gain.exponentialRampToValueAtTime(0.01, time + note.duration);
-                        
-                        osc.start(time);
-                        osc.stop(time + note.duration);
-                        
-                        this.musicOscillators.push(osc);
-                        time += note.duration;
+                    let time = this.context.currentTime;
+                    
+                    melody.forEach((note) => {
+                        try {
+                            const osc = this.context.createOscillator();
+                            const gain = this.context.createGain();
+                            
+                            osc.connect(gain);
+                            gain.connect(this.musicGain);
+                            
+                            osc.frequency.value = note.note;
+                            osc.type = 'square';
+                            
+                            gain.gain.setValueAtTime(0.3, time);
+                            gain.gain.exponentialRampToValueAtTime(0.01, time + note.duration);
+                            
+                            osc.start(time);
+                            osc.stop(time + note.duration);
+                            
+                            this.musicOscillators.push(osc);
+                            time += note.duration;
+                        } catch(e) {
+                            console.warn('Audio note failed:', e);
+                        }
                     });
                     
-                    // Loop the melody
-                    setTimeout(playMelody, melody.reduce((sum, n) => sum + n.duration, 0) * 1000);
+                    // Schedule next iteration
+                    if (this.currentMusic === name) {
+                        setTimeout(playMelody, melodyDuration);
+                    }
                 };
                 
                 playMelody();
@@ -439,8 +448,12 @@
             stopMusic() {
                 this.musicOscillators.forEach(osc => {
                     try {
-                        osc.stop();
-                    } catch(e) {}
+                        if (osc && osc.stop) {
+                            osc.stop();
+                        }
+                    } catch(e) {
+                        // Oscillator already stopped or disposed
+                    }
                 });
                 this.musicOscillators = [];
                 this.currentMusic = null;
@@ -815,6 +828,99 @@
         };
 
         // ===================================
+        // SCREEN TRANSITION SYSTEM
+        // ===================================
+
+        const Transition = {
+            active: false,
+            type: 'fade', // fade, wipe, circle
+            progress: 0,
+            duration: 500,
+            callback: null,
+            fadeOut: true,
+
+            start(type = 'fade', callback = null, duration = 500) {
+                this.active = true;
+                this.type = type;
+                this.progress = 0;
+                this.duration = duration;
+                this.callback = callback;
+                this.fadeOut = true;
+            },
+
+            update(dt) {
+                if (!this.active) return;
+                
+                this.progress += dt;
+                
+                if (this.progress >= this.duration) {
+                    if (this.fadeOut && this.callback) {
+                        this.callback();
+                        this.fadeOut = false;
+                        this.progress = 0;
+                    } else if (!this.fadeOut) {
+                        this.active = false;
+                    }
+                }
+            },
+
+            draw(ctx) {
+                if (!this.active) return;
+                
+                const alpha = this.fadeOut 
+                    ? this.progress / this.duration 
+                    : 1 - (this.progress / this.duration);
+                
+                switch(this.type) {
+                    case 'fade':
+                        ctx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
+                        ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+                        break;
+                        
+                    case 'wipe':
+                        const wipeX = this.fadeOut 
+                            ? (this.progress / this.duration) * GAME_WIDTH
+                            : GAME_WIDTH - (this.progress / this.duration) * GAME_WIDTH;
+                        ctx.fillStyle = '#000';
+                        ctx.fillRect(0, 0, wipeX, GAME_HEIGHT);
+                        break;
+                        
+                    case 'circle':
+                        const maxRadius = Math.sqrt(GAME_WIDTH * GAME_WIDTH + GAME_HEIGHT * GAME_HEIGHT);
+                        const radius = this.fadeOut
+                            ? maxRadius - (this.progress / this.duration) * maxRadius
+                            : (this.progress / this.duration) * maxRadius;
+                        
+                        try {
+                            ctx.save();
+                            ctx.globalCompositeOperation = 'destination-out';
+                            ctx.fillStyle = '#000';
+                            ctx.beginPath();
+                            ctx.arc(GAME_WIDTH / 2, GAME_HEIGHT / 2, radius, 0, Math.PI * 2);
+                            ctx.fill();
+                        } finally {
+                            ctx.restore();
+                        }
+                        
+                        if (this.fadeOut) {
+                            ctx.fillStyle = '#000';
+                            ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+                            try {
+                                ctx.save();
+                                ctx.globalCompositeOperation = 'destination-out';
+                                ctx.beginPath();
+                                ctx.arc(GAME_WIDTH / 2, GAME_HEIGHT / 2, radius, 0, Math.PI * 2);
+                                ctx.fill();
+                            } finally {
+                                ctx.restore();
+                            }
+                        }
+                        break;
+                }
+            }
+        };
+
+        // ===================================
         // GAME STATE MANAGER
         // ===================================
 
@@ -833,6 +939,7 @@
             },
 
             update(dt) {
+                Transition.update(dt);
                 if (this.states[this.current] && this.states[this.current].update) {
                     this.states[this.current].update(dt);
                 }
@@ -842,6 +949,7 @@
                 if (this.states[this.current] && this.states[this.current].draw) {
                     this.states[this.current].draw(ctx);
                 }
+                Transition.draw(ctx);
             }
         };
 
@@ -1828,7 +1936,10 @@
                     case 0: // New Game
                         console.log('Starting new game...');
                         SaveSystem.deleteSave();
-                        GameState.setState('INTRO_CUTSCENE');
+                        Audio.stopMusic();
+                        Transition.start('fade', () => {
+                            GameState.setState('INTRO_CUTSCENE');
+                        }, 800);
                         break;
                     case 1: // Continue
                         console.log('Loading save...');
