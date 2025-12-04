@@ -717,6 +717,44 @@
                     // Key teeth
                     ctx.fillRect(9, 12, 2, 2);
                 });
+            },
+
+            // Door sprite (FNAF-style exit)
+            createDoor() {
+                return this.create(32, 48, (ctx) => {
+                    // Door frame
+                    ctx.fillStyle = '#2a2a2a';
+                    ctx.fillRect(0, 0, 32, 48);
+                    // Door panels
+                    ctx.fillStyle = '#4a3a2a';
+                    ctx.fillRect(2, 2, 28, 44);
+                    // Door panels detail
+                    ctx.fillStyle = '#3a2a1a';
+                    ctx.fillRect(4, 4, 24, 18);
+                    ctx.fillRect(4, 24, 24, 18);
+                    // Door handle
+                    ctx.fillStyle = '#DAA520';
+                    ctx.fillRect(24, 22, 4, 4);
+                    // Keyhole
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(14, 24, 4, 2);
+                });
+            },
+
+            // Wall sprite for clear boundaries
+            createWall() {
+                return this.create(16, 16, (ctx) => {
+                    // Dark brick wall (FNAF pizzeria style)
+                    ctx.fillStyle = '#1a1a1a';
+                    ctx.fillRect(0, 0, 16, 16);
+                    // Brick lines
+                    ctx.fillStyle = '#0a0a0a';
+                    ctx.fillRect(0, 0, 16, 1);
+                    ctx.fillRect(0, 8, 16, 1);
+                    ctx.fillRect(0, 0, 1, 16);
+                    ctx.fillRect(8, 0, 1, 8);
+                    ctx.fillRect(8, 9, 1, 7);
+                });
             }
         };
 
