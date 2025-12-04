@@ -279,7 +279,7 @@
                 }
             },
 
-            // 8-bit style melodies for different scenes
+            // 8-bit style melodies for different scenes - with variations to avoid repetition
             melodies: {
                 menu: [
                     { note: 523.25, duration: 0.3 }, // C5
@@ -297,7 +297,12 @@
                     { note: 523.25, duration: 0.4 }, // C5
                     { note: 587.33, duration: 0.2 }, // D5
                     { note: 659.25, duration: 0.4 }, // E5
-                    { note: 523.25, duration: 0.4 }  // C5
+                    { note: 523.25, duration: 0.4 },  // C5
+                    // Variation
+                    { note: 440.00, duration: 0.3 }, // A4
+                    { note: 493.88, duration: 0.3 }, // B4
+                    { note: 587.33, duration: 0.5 }, // D5
+                    { note: 523.25, duration: 0.3 }  // C5
                 ],
                 boss: [
                     { note: 293.66, duration: 0.15 }, // D4
@@ -307,7 +312,12 @@
                     { note: 349.23, duration: 0.15 }, // F4
                     { note: 349.23, duration: 0.15 }, // F4
                     { note: 349.23, duration: 0.15 }, // F4
-                    { note: 369.99, duration: 0.3 }   // F#4
+                    { note: 369.99, duration: 0.3 },   // F#4
+                    // Variation for intensity
+                    { note: 261.63, duration: 0.2 }, // C4
+                    { note: 277.18, duration: 0.2 }, // C#4
+                    { note: 293.66, duration: 0.2 }, // D4
+                    { note: 329.63, duration: 0.4 }  // E4
                 ],
                 victory: [
                     { note: 523.25, duration: 0.2 }, // C5
@@ -315,9 +325,14 @@
                     { note: 783.99, duration: 0.2 }, // G5
                     { note: 1046.50, duration: 0.3 }, // C6
                     { note: 783.99, duration: 0.2 }, // G5
-                    { note: 1046.50, duration: 0.5 }  // C6
+                    { note: 1046.50, duration: 0.5 },  // C6
+                    // Triumphant ending
+                    { note: 1174.66, duration: 0.2 }, // D6
+                    { note: 1318.51, duration: 0.2 }, // E6
+                    { note: 1568.00, duration: 0.8 }  // G6
                 ]
             },
+            currentMelodyVariation: 0,
 
             playSound(name, volumeOverride) {
                 if (!this.context) return;
@@ -741,6 +756,79 @@
                 });
             },
 
+            // 8-bit icon sprites (replacing emojis for professional look)
+            createHeartIcon() {
+                return this.create(16, 16, (ctx) => {
+                    // Pixel heart icon
+                    ctx.fillStyle = '#FF1493';
+                    ctx.fillRect(3, 4, 4, 2);
+                    ctx.fillRect(9, 4, 4, 2);
+                    ctx.fillRect(2, 6, 12, 4);
+                    ctx.fillRect(3, 10, 10, 2);
+                    ctx.fillRect(5, 12, 6, 2);
+                    ctx.fillRect(6, 14, 4, 1);
+                });
+            },
+
+            createLockIcon() {
+                return this.create(16, 16, (ctx) => {
+                    // Lock icon
+                    ctx.fillStyle = '#888';
+                    // Shackle
+                    ctx.fillRect(5, 4, 2, 4);
+                    ctx.fillRect(9, 4, 2, 4);
+                    ctx.fillRect(5, 4, 6, 2);
+                    // Body
+                    ctx.fillStyle = '#666';
+                    ctx.fillRect(4, 8, 8, 6);
+                    // Keyhole
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(7, 10, 2, 3);
+                });
+            },
+
+            createKeyIcon() {
+                return this.create(16, 16, (ctx) => {
+                    // Key icon (different from pickup)
+                    ctx.fillStyle = '#FFD700';
+                    ctx.fillRect(4, 6, 4, 4);
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(5, 7, 2, 2);
+                    ctx.fillStyle = '#FFD700';
+                    ctx.fillRect(8, 8, 6, 2);
+                    ctx.fillRect(12, 7, 2, 1);
+                    ctx.fillRect(12, 9, 2, 1);
+                });
+            },
+
+            createDoorIcon() {
+                return this.create(16, 16, (ctx) => {
+                    // Door icon
+                    ctx.fillStyle = '#8B4513';
+                    ctx.fillRect(3, 2, 10, 12);
+                    ctx.fillStyle = '#6A3410';
+                    ctx.fillRect(4, 3, 8, 10);
+                    // Handle
+                    ctx.fillStyle = '#FFD700';
+                    ctx.fillRect(11, 7, 2, 2);
+                });
+            },
+
+            createLightningIcon() {
+                return this.create(16, 16, (ctx) => {
+                    // Lightning bolt
+                    ctx.fillStyle = '#FFFF00';
+                    ctx.fillRect(8, 2, 2, 4);
+                    ctx.fillRect(6, 6, 4, 2);
+                    ctx.fillRect(8, 8, 2, 4);
+                    ctx.fillRect(10, 10, 2, 2);
+                    // Highlight
+                    ctx.fillStyle = '#FFF';
+                    ctx.fillRect(8, 2, 1, 2);
+                    ctx.fillRect(6, 6, 1, 1);
+                });
+            },
+
             // Wall sprite for clear boundaries
             createWall() {
                 return this.create(16, 16, (ctx) => {
@@ -767,6 +855,12 @@
         Sprites.key = Sprites.createKey();
         Sprites.door = Sprites.createDoor();
         Sprites.wall = Sprites.createWall();
+        // Initialize icons (replacing emojis)
+        Sprites.heartIcon = Sprites.createHeartIcon();
+        Sprites.lockIcon = Sprites.createLockIcon();
+        Sprites.keyIcon = Sprites.createKeyIcon();
+        Sprites.doorIcon = Sprites.createDoorIcon();
+        Sprites.lightningIcon = Sprites.createLightningIcon();
 
         // ===================================
         // PARTICLE SYSTEM
@@ -1807,64 +1901,104 @@
                 ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
                 ctx.fillRect(this.x + 4, this.y + this.height, this.width - 4, 8);
 
-                // Special rendering for Golden Freddy (more detailed)
+                // Special rendering for Golden Freddy (detailed bear design, not just a square)
                 if (this.bossType === 'golden-freddy') {
-                    // Body (golden/yellow with darker shading)
-                    ctx.fillStyle = '#B8860B';  // Dark golden
-                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                    const bw = this.width;  // base width
+                    const bh = this.height; // base height
+                    const bx = this.x;
+                    const by = this.y;
+                    
+                    // Body (golden/yellow with shading to show form)
+                    ctx.fillStyle = '#B8860B';  // Dark golden shadow
+                    ctx.fillRect(bx, by + bh/3, bw, bh*2/3);
+                    ctx.fillStyle = '#DAA520';  // Medium golden
+                    ctx.fillRect(bx + 2, by + bh/3 + 2, bw - 4, bh*2/3 - 4);
                     ctx.fillStyle = '#FFD700';  // Bright golden highlight
-                    ctx.fillRect(this.x + 4, this.y + 4, this.width - 8, this.height - 8);
+                    ctx.fillRect(bx + 4, by + bh/3 + 4, bw - 8, bh*2/3 - 8);
                     
-                    // Endoskeleton showing (metallic gray - wear and tear)
+                    // Endoskeleton showing through (metallic gray - damage/wear)
                     ctx.fillStyle = '#505050';
-                    ctx.fillRect(this.x + 8, this.y + this.height / 2, 4, this.height / 3);
-                    ctx.fillRect(this.x + this.width - 12, this.y + this.height / 2, 4, this.height / 3);
+                    ctx.fillRect(bx + 6, by + bh/2 + 4, 4, bh/4);
+                    ctx.fillRect(bx + bw - 10, by + bh/2 + 4, 4, bh/4);
                     
-                    // Head
-                    ctx.fillStyle = '#FFD700';
-                    ctx.fillRect(this.x + 4, this.y + 4, this.width - 8, this.height / 3);
-                    
-                    // Eyes (FNAF-style - WHITE with black pupils, not red!)
-                    ctx.fillStyle = '#000';
-                    ctx.fillRect(this.x + 8, this.y + 10, 8, 10);  // Eye sockets
-                    ctx.fillRect(this.x + this.width - 16, this.y + 10, 8, 10);
-                    ctx.fillStyle = '#FFF';
-                    ctx.fillRect(this.x + 9, this.y + 11, 6, 8);
-                    ctx.fillRect(this.x + this.width - 15, this.y + 11, 6, 8);
-                    // Small black pupils
-                    ctx.fillStyle = '#000';
-                    ctx.fillRect(this.x + 11, this.y + 15, 2, 2);
-                    ctx.fillRect(this.x + this.width - 13, this.y + 15, 2, 2);
-                    
-                    // Ears (rounded, Freddy-style)
+                    // Head (rounder, bear-like)
                     ctx.fillStyle = '#B8860B';
-                    ctx.fillRect(this.x - 2, this.y + 2, 6, 8);
-                    ctx.fillRect(this.x + this.width - 4, this.y + 2, 6, 8);
+                    ctx.fillRect(bx + 4, by + 4, bw - 8, bh/3 + 4);
+                    ctx.fillStyle = '#DAA520';
+                    ctx.fillRect(bx + 6, by + 6, bw - 12, bh/3);
+                    ctx.fillStyle = '#FFD700';
+                    ctx.fillRect(bx + 8, by + 8, bw - 16, bh/3 - 4);
                     
-                    // Bow tie (black, classic Freddy)
+                    // Snout (lighter colored, bear feature)
+                    ctx.fillStyle = '#F0E68C';
+                    ctx.fillRect(bx + bw/2 - 6, by + bh/4 + 4, 12, 8);
                     ctx.fillStyle = '#000';
-                    ctx.fillRect(this.x + this.width / 2 - 6, this.y + this.height / 3 + 4, 12, 3);
-                    ctx.fillRect(this.x + this.width / 2 - 8, this.y + this.height / 3 + 5, 4, 2);
-                    ctx.fillRect(this.x + this.width / 2 + 4, this.y + this.height / 3 + 5, 4, 2);
+                    ctx.fillRect(bx + bw/2 - 2, by + bh/4 + 10, 4, 2); // Nose
                     
-                    // Teeth (sharp, menacing)
+                    // Ears (rounded, classic Freddy-style on top of head)
+                    ctx.fillStyle = '#B8860B';
+                    // Left ear
+                    ctx.fillRect(bx + 2, by, 10, 8);
+                    ctx.fillRect(bx + 4, by - 2, 6, 4);
+                    // Inner ear
+                    ctx.fillStyle = '#DAA520';
+                    ctx.fillRect(bx + 5, by + 2, 4, 4);
+                    // Right ear
+                    ctx.fillStyle = '#B8860B';
+                    ctx.fillRect(bx + bw - 12, by, 10, 8);
+                    ctx.fillRect(bx + bw - 10, by - 2, 6, 4);
+                    // Inner ear
+                    ctx.fillStyle = '#DAA520';
+                    ctx.fillRect(bx + bw - 9, by + 2, 4, 4);
+                    
+                    // Eyes (FNAF-style - WHITE sclera with black pupils)
+                    // Eye sockets
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(bx + 8, by + 12, 8, 10);
+                    ctx.fillRect(bx + bw - 16, by + 12, 8, 10);
+                    // White eyes
                     ctx.fillStyle = '#FFF';
-                    for (let i = 0; i < 5; i++) {
-                        ctx.fillRect(this.x + 8 + i * 4, this.y + this.height / 3 - 2, 2, 4);
+                    ctx.fillRect(bx + 9, by + 13, 6, 8);
+                    ctx.fillRect(bx + bw - 15, by + 13, 6, 8);
+                    // Pupils (small black dots)
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(bx + 11, by + 16, 2, 3);
+                    ctx.fillRect(bx + bw - 13, by + 16, 2, 3);
+                    
+                    // Eyebrows (menacing)
+                    ctx.fillStyle = '#8B7500';
+                    ctx.fillRect(bx + 8, by + 10, 8, 2);
+                    ctx.fillRect(bx + bw - 16, by + 10, 8, 2);
+                    
+                    // Bow tie (black, classic Golden Freddy)
+                    ctx.fillStyle = '#000';
+                    const bowY = by + bh/3 + 2;
+                    ctx.fillRect(bx + bw/2 - 6, bowY, 12, 3);
+                    ctx.fillRect(bx + bw/2 - 8, bowY + 1, 4, 2);
+                    ctx.fillRect(bx + bw/2 + 4, bowY + 1, 4, 2);
+                    
+                    // Teeth (sharp, menacing bear teeth)
+                    ctx.fillStyle = '#FFF';
+                    for (let i = 0; i < 6; i++) {
+                        ctx.fillRect(bx + 10 + i * 4, by + bh/3 - 3, 2, 4);
                     }
                     
                     // Phase-specific effects
                     if (this.phase >= 2) {
-                        // Glowing aura in later phases
+                        // Glowing golden aura in later phases
                         const pulse = Math.sin(Date.now() / 100) * 0.3 + 0.7;
-                        ctx.fillStyle = `rgba(255, 215, 0, ${pulse * 0.3})`;
-                        ctx.fillRect(this.x - 4, this.y - 4, this.width + 8, this.height + 8);
+                        ctx.fillStyle = `rgba(255, 215, 0, ${pulse * 0.4})`;
+                        ctx.fillRect(bx - 6, by - 6, bw + 12, bh + 12);
                     }
                     if (this.phase === 3) {
-                        // Red eyes in phase 3 (enrage)
+                        // Red eyes in phase 3 (enrage mode)
                         ctx.fillStyle = '#FF0000';
-                        ctx.fillRect(this.x + 11, this.y + 15, 2, 2);
-                        ctx.fillRect(this.x + this.width - 13, this.y + 15, 2, 2);
+                        ctx.fillRect(bx + 11, by + 16, 2, 3);
+                        ctx.fillRect(bx + bw - 13, by + 16, 2, 3);
+                        // Red glow around eyes
+                        ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+                        ctx.fillRect(bx + 8, by + 12, 8, 10);
+                        ctx.fillRect(bx + bw - 16, by + 12, 8, 10);
                     }
                 } else {
                     // Other bosses - simpler rendering
@@ -1907,11 +2041,23 @@
                     ctx.fillStyle = '#FFD700';
                     ctx.font = 'bold 16px "Courier New"';
                     ctx.textAlign = 'center';
-                    const phaseText = `⚡ PHASE ${this.phase}/3 ⚡`;
+                    const phaseText = `PHASE ${this.phase}/3`;
                     ctx.fillStyle = '#000';
                     ctx.fillText(phaseText, GAME_WIDTH / 2 + 1, 71);
                     ctx.fillStyle = this.phase === 3 ? '#FF0000' : '#FFD700';
                     ctx.fillText(phaseText, GAME_WIDTH / 2, 70);
+                    // Draw lightning icons on sides
+                    const iconScale = 1.2;
+                    ctx.save();
+                    ctx.translate(GAME_WIDTH / 2 - 80, 70 - 12);
+                    ctx.scale(iconScale, iconScale);
+                    ctx.drawImage(Sprites.lightningIcon, 0, 0);
+                    ctx.restore();
+                    ctx.save();
+                    ctx.translate(GAME_WIDTH / 2 + 60, 70 - 12);
+                    ctx.scale(iconScale, iconScale);
+                    ctx.drawImage(Sprites.lightningIcon, 0, 0);
+                    ctx.restore();
                     ctx.textAlign = 'left';
                 }
 
@@ -2345,10 +2491,13 @@
                 ctx.font = '12px "Courier New"';
                 ctx.fillText('Use ↑↓ or W/S to navigate', GAME_WIDTH / 2, GAME_HEIGHT - 40);
                 
-                // Heart message
+                // Heart message with icon
                 ctx.fillStyle = '#FF69B4';
                 ctx.font = 'italic 16px "Courier New"';
-                ctx.fillText('Made with ❤️ for Gabby', GAME_WIDTH / 2, GAME_HEIGHT - 10);
+                const heartMsgY = GAME_HEIGHT - 10;
+                ctx.drawImage(Sprites.heartIcon, GAME_WIDTH / 2 - 100, heartMsgY - 14, 14, 14);
+                ctx.fillText('Made with love for Gabby', GAME_WIDTH / 2 - 80, heartMsgY);
+                ctx.drawImage(Sprites.heartIcon, GAME_WIDTH / 2 + 85, heartMsgY - 14, 14, 14);
                 
 
                 // Press START hint
@@ -2374,15 +2523,21 @@
             scenes: [
                 { 
                     title: "THE DATE",
-                    text: "Jose: 'I'm so glad we came here tonight, Gabby.'",
-                    duration: 3500,
+                    text: "Jose: 'Hey darling, I'm really enjoying the night here at Freddy's. How are you liking our date, Gabby?'",
+                    duration: 4000,
                     color: '#FFD700'
                 },
                 {
                     title: "THE DATE", 
-                    text: "Gabby: 'Me too! This is the best date ever! ❤️'",
+                    text: "Gabby: 'I'm really enjoying it here! I hope we can come here more often.'",
                     duration: 3500,
                     color: '#FF69B4'
+                },
+                {
+                    title: "THE DATE",
+                    text: "Jose: 'Anything with you is perfect. You make every moment special.'",
+                    duration: 3500,
+                    color: '#FFD700'
                 },
                 { 
                     title: "SOMETHING'S WRONG",
@@ -2398,19 +2553,19 @@
                 },
                 { 
                     title: "THE ATTACK",
-                    text: "Gabby: 'Jose! Something's wrong!'",
+                    text: "Gabby: 'Jose! Something's wrong with them!'",
                     duration: 2500,
                     color: '#FF1493'
                 },
                 { 
-                    title: "THE CAPTURE",
-                    text: "A massive golden figure emerges from the shadows!",
-                    duration: 2500,
+                    title: "GOLDEN FREDDY APPEARS",
+                    text: "A massive golden bear emerges from the shadows! His eyes burn with an unnatural light...",
+                    duration: 3000,
                     color: '#DAA520'
                 },
                 { 
                     title: "THE CAPTURE",
-                    text: "Golden Freddy grabs Gabby! 'JOSE! HELP!'",
+                    text: "Golden Freddy grabs Gabby! 'JOSE! HELP ME!'",
                     duration: 3000,
                     color: '#FF6347'
                 },
@@ -2422,13 +2577,13 @@
                 },
                 { 
                     title: "JOSE'S DETERMINATION",
-                    text: "Jose: 'I'll fight through anything to save you!'",
+                    text: "Jose: 'I'll fight through anything to save you! Nothing will stop me!'",
                     duration: 3200,
                     color: '#00FF00'
                 },
                 { 
                     title: "THE QUEST BEGINS",
-                    text: "TRUE LOVE WILL LIGHT THE WAY...",
+                    text: "TRUE LOVE WILL LIGHT THE WAY THROUGH THE DARKNESS...",
                     duration: 3500,
                     color: '#FF1493'
                 }
@@ -2508,11 +2663,14 @@
                     ctx.arc(400, 300, 20, 0, Math.PI * 2);
                     ctx.fill();
                 } else if (this.scene >= 7) {
-                    // Draw beating heart
-                    const heartBeat = Math.sin(this.timer / 200) * 8 + 40;
-                    ctx.fillStyle = '#FF1493';
-                    ctx.font = `${heartBeat}px Arial`;
-                    ctx.fillText('❤️', GAME_WIDTH / 2, GAME_HEIGHT / 2 - 40);
+                    // Draw beating heart icon
+                    const heartBeat = Math.sin(this.timer / 200) * 0.3 + 1;
+                    const heartSize = 40 * heartBeat;
+                    ctx.save();
+                    ctx.translate(GAME_WIDTH / 2 - heartSize/2, GAME_HEIGHT / 2 - 60);
+                    ctx.scale(heartBeat * 2.5, heartBeat * 2.5);
+                    ctx.drawImage(Sprites.heartIcon, 0, 0);
+                    ctx.restore();
                     
                     // Sparkles around heart
                     for (let i = 0; i < 20; i++) {
@@ -2714,8 +2872,8 @@
                     return true;
                 });
 
-                // Update door unlock status
-                if (this.player.keys >= 3 && this.enemies.length === 0) {
+                // Update door unlock status - ONLY need keys, not all enemies defeated
+                if (this.player.keys >= 3) {
                     this.door.locked = false;
                     this.doorUnlocked = true;
                 }
@@ -2764,11 +2922,13 @@
                     // Locked indicator (red overlay)
                     ctx.fillStyle = 'rgba(200, 0, 0, 0.5)';
                     ctx.fillRect(this.door.x, this.door.y, this.door.width, this.door.height);
-                    // Lock symbol
-                    ctx.fillStyle = '#FF0000';
-                    ctx.font = 'bold 24px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('🔒', this.door.x + 16, this.door.y + 32);
+                    // Lock symbol - use 8-bit icon
+                    const lockScale = 1.5;
+                    ctx.save();
+                    ctx.translate(this.door.x + 16 - 8*lockScale, this.door.y + 24 - 8*lockScale);
+                    ctx.scale(lockScale, lockScale);
+                    ctx.drawImage(Sprites.lockIcon, 0, 0);
+                    ctx.restore();
                 } else {
                     // Unlocked indicator (green glow)
                     const pulse = Math.sin(Date.now() / 200) * 0.3 + 0.5;
@@ -2823,7 +2983,11 @@
                 if (this.player.keys < 3) {
                     ctx.fillStyle = '#FFD700';
                     ctx.font = 'bold 20px "Courier New"';
-                    ctx.fillText('🔑 COLLECT ALL KEYS TO UNLOCK THE EXIT 🔑', GAME_WIDTH / 2, GAME_HEIGHT - 80);
+                    // Draw key icons instead of emoji
+                    const keyIconY = GAME_HEIGHT - 80;
+                    ctx.drawImage(Sprites.keyIcon, GAME_WIDTH / 2 - 220, keyIconY - 16, 16, 16);
+                    ctx.fillText('COLLECT ALL KEYS TO UNLOCK THE EXIT', GAME_WIDTH / 2, keyIconY);
+                    ctx.drawImage(Sprites.keyIcon, GAME_WIDTH / 2 + 200, keyIconY - 16, 16, 16);
                     
                     ctx.fillStyle = '#FFF';
                     ctx.font = '16px "Courier New"';
@@ -2831,7 +2995,7 @@
                 } else if (this.enemies.length > 0) {
                     ctx.fillStyle = '#00FF00';
                     ctx.font = 'bold 20px "Courier New"';
-                    ctx.fillText('✓ ALL KEYS FOUND! Defeat remaining enemies!', GAME_WIDTH / 2, GAME_HEIGHT - 80);
+                    ctx.fillText('ALL KEYS FOUND! Head to the exit or clear the room!', GAME_WIDTH / 2, GAME_HEIGHT - 80);
                     
                     ctx.fillStyle = '#FFF';
                     ctx.font = '16px "Courier New"';
@@ -2841,7 +3005,11 @@
                     const flashColor = Math.floor(Date.now() / 300) % 2 === 0 ? '#00FF00' : '#FFFF00';
                     ctx.fillStyle = flashColor;
                     ctx.font = 'bold 22px "Courier New"';
-                    ctx.fillText('🚪 EXIT UNLOCKED! GO TO THE DOOR! 🚪', GAME_WIDTH / 2, GAME_HEIGHT - 80);
+                    // Draw door icons instead of emoji
+                    const doorIconY = GAME_HEIGHT - 80;
+                    ctx.drawImage(Sprites.doorIcon, GAME_WIDTH / 2 - 240, doorIconY - 16, 16, 16);
+                    ctx.fillText('EXIT UNLOCKED! GO TO THE DOOR!', GAME_WIDTH / 2, doorIconY);
+                    ctx.drawImage(Sprites.doorIcon, GAME_WIDTH / 2 + 220, doorIconY - 16, 16, 16);
                     
                     ctx.fillStyle = '#00FF00';
                     ctx.font = 'bold 18px "Courier New"';
@@ -3713,7 +3881,7 @@
                 },
                 {
                     title: "TRUE LOVE",
-                    text: "Press SPACE to embrace ❤️",
+                    text: "Press SPACE to embrace",
                     duration: 10000,
                     color: '#FF69B4',
                     action: 'hug_prompt'
@@ -3855,10 +4023,14 @@
                         const hx = GAME_WIDTH / 2 + Math.cos(angle) * radius;
                         const hy = GAME_HEIGHT / 2 - 40 + Math.sin(angle) * radius - (this.timer / 50);
                         
-                        ctx.fillStyle = i % 3 === 0 ? '#FF1493' : (i % 3 === 1 ? '#FF69B4' : '#FFD700');
-                        ctx.font = `${12 + Math.sin(this.timer / 100 + i) * 4}px Arial`;
-                        ctx.textAlign = 'center';
-                        ctx.fillText('❤️', hx, hy % GAME_HEIGHT);
+                        // Draw heart icons instead of emoji
+                        const iconSize = 12 + Math.sin(this.timer / 100 + i) * 4;
+                        const scale = iconSize / 16;
+                        ctx.save();
+                        ctx.translate(hx - 8*scale, (hy % GAME_HEIGHT) - 8*scale);
+                        ctx.scale(scale, scale);
+                        ctx.drawImage(Sprites.heartIcon, 0, 0);
+                        ctx.restore();
                     }
                     
                     if (this.hugged) {
@@ -3910,11 +4082,13 @@
                         "Press SPACE to return to menu"
                     ];
                     
-                    // Draw heart frame
-                    ctx.fillStyle = '#FF1493';
-                    ctx.font = '60px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('❤️', GAME_WIDTH / 2, 100);
+                    // Draw heart frame with large icon
+                    const heartScale = 4;
+                    ctx.save();
+                    ctx.translate(GAME_WIDTH / 2 - 8*heartScale, 70 - 8*heartScale);
+                    ctx.scale(heartScale, heartScale);
+                    ctx.drawImage(Sprites.heartIcon, 0, 0);
+                    ctx.restore();
                     
                     // Draw messages
                     ctx.font = '18px "Courier New"';
