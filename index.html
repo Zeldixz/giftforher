@@ -332,7 +332,6 @@
                     { note: 1568.00, duration: 0.8 }  // G6
                 ]
             },
-            currentMelodyVariation: 0,
 
             playSound(name, volumeOverride) {
                 if (!this.context) return;
@@ -3336,12 +3335,6 @@
                     ctx.fillText('EXIT UNLOCKED! HEAD EAST!', GAME_WIDTH / 2, GAME_HEIGHT - 70);
                     ctx.drawImage(Sprites.doorIcon, GAME_WIDTH / 2 + 130, GAME_HEIGHT - 75, 16, 16);
                 }
-                ctx.fillRect(0, GAME_HEIGHT - 70, GAME_WIDTH, 70);
-                ctx.fillStyle = '#FFD700';
-                ctx.font = '14px "Courier New"';
-                ctx.textAlign = 'center';
-                ctx.fillText('Activate all switches to unlock the door!', GAME_WIDTH / 2, GAME_HEIGHT - 40);
-                ctx.fillText(`Switches: ${this.switches.filter(s => s.active).length}/3`, GAME_WIDTH / 2, GAME_HEIGHT - 20);
                 ctx.textAlign = 'left';
             }
         };
