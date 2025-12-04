@@ -2663,10 +2663,13 @@
             switches: [],
 
             enter() {
-                this.player = GameState.states['BOSS_1']?.player || new Player(50, GAME_HEIGHT / 2);
+                this.player = GameState.states['BOSS_1']?.player || new Player(50, GAME_HEIGHT - 50);
                 this.player.keys = 0;
+                this.doorX = GAME_WIDTH - 80;
+                this.doorY = 50;
+                this.doorUnlocked = false;
 
-                // Chef enemies
+                // Chef enemies - optional challenges
                 for (let i = 0; i < 3; i++) {
                     const enemy = new Enemy(
                         200 + i * 200,
@@ -2678,31 +2681,28 @@
                     this.enemies.push(enemy);
                 }
 
-                // Fire hazards
+                // UNIQUE MECHANIC: Timed fire hazards that require timing to navigate
                 this.hazards = [
                     { x: 200, y: 300, width: 50, height: 50, type: 'fire', timer: 0 },
-                    { x: 500, y: 200, width: 50, height: 50, type: 'fire', timer: 1000 },
-                    { x: 300, y: 450, width: 50, height: 50, type: 'fire', timer: 500 }
+                    { x: 400, y: 200, width: 50, height: 50, type: 'fire', timer: 1000 },
+                    { x: 300, y: 450, width: 50, height: 50, type: 'fire', timer: 500 },
+                    { x: 500, y: 350, width: 50, height: 50, type: 'fire', timer: 1500 }
                 ];
 
-                // Switches for puzzle
-                this.switches = [
-                    { x: 100, y: 100, active: false },
-                    { x: 700, y: 100, active: false },
-                    { x: 400, y: 500, active: false }
-                ];
-
-                // Bow and arrows
+                // Keys hidden around hazards
                 this.items = [
-                    { x: 650, y: 300, type: 'bow' },
-                    { x: 150, y: 400, type: 'arrows', amount: 10 }
+                    { x: 150, y: 150, type: 'key' },
+                    { x: 550, y: 450, type: 'key' },
+                    { x: 650, y: 200, type: 'key' }
                 ];
+
+                Audio.playMusic('level2');
             },
 
             update(dt) {
                 this.player.update(dt);
 
-                // Update enemies
+                // Update enemies (optional obstacles)
                 this.enemies = this.enemies.filter(enemy => {
                     enemy.update(dt, this.player);
                     const attackBox = this.player.getAttackBox();
@@ -2712,10 +2712,13 @@
                     return true;
                 });
 
-                // Update hazards
+                // Update fire hazards - UNIQUE MECHANIC
                 this.hazards.forEach(h => {
                     h.timer += dt;
-                    if (h.timer % 2000 < 1000) { // Active half the time
+                    // Fire active 60% of the time, different patterns for each
+                    const cycleTime = 3000 + (h.timer % 1000);
+                    const activeTime = cycleTime * 0.6;
+                    if (h.timer % cycleTime < activeTime) {
                         if (this.player.x < h.x + h.width && this.player.x + this.player.width > h.x &&
                             this.player.y < h.y + h.height && this.player.y + this.player.height > h.y) {
                             if (!this.player.invincible) {
@@ -2725,37 +2728,38 @@
                     }
                 });
 
-                // Check switches
-                this.switches.forEach(s => {
-                    const dist = Math.sqrt((s.x - this.player.x) ** 2 + (s.y - this.player.y) ** 2);
-                    if (dist < 30 && Input.isDown('interact')) {
-                        s.active = true;
-                        Audio.playSound('pickup');
-                    }
-                });
-
                 // Check items
                 this.items = this.items.filter(item => {
                     const dist = Math.sqrt((item.x - this.player.x) ** 2 + (item.y - this.player.y) ** 2);
-                    if (dist < 25) {
-                        if (item.type === 'bow') {
-                            this.player.hasBoots = true; // Using hasBoots as flag for bow
-                            Audio.playSound('pickup');
-                            return false;
-                        } else if (item.type === 'arrows') {
-                            this.player.arrows += item.amount;
-                            Audio.playSound('pickup');
-                            return false;
-                        }
+                    if (dist < 25 && item.type === 'key') {
+                        this.player.keys++;
+                        Audio.playSound('pickup');
+                        ParticleSystem.createExplosion(item.x, item.y, '#FFD700');
+                        return false;
                     }
                     return true;
                 });
 
                 ParticleSystem.update(dt);
 
-                // Win condition
-                if (this.switches.every(s => s.active) && this.enemies.length === 0) {
-                    GameState.setState('BOSS_2');
+                // Win condition - ONLY KEYS NEEDED!
+                if (this.player.keys >= 3 && !this.doorUnlocked) {
+                    this.doorUnlocked = true;
+                    Audio.playSound('door');
+                    ParticleSystem.createExplosion(this.doorX + 16, this.doorY + 24, '#00FF00');
+                }
+                
+                // Check if player reaches door
+                if (this.doorUnlocked) {
+                    const doorDist = Math.sqrt(
+                        (this.player.x - (this.doorX + 16)) ** 2 + 
+                        (this.player.y - (this.doorY + 24)) ** 2
+                    );
+                    
+                    if (doorDist < 40 && Input.justPressed('interact')) {
+                        Audio.stopMusic();
+                        GameState.setState('BOSS_2');
+                    }
                 }
             },
 
@@ -2774,27 +2778,54 @@
                     }
                 }
 
-                // Draw hazards
+                // Draw fire hazards with warning indicators
                 this.hazards.forEach(h => {
-                    const active = h.timer % 2000 < 1000;
-                    ctx.fillStyle = active ? '#FF4500' : '#8B0000';
+                    const cycleTime = 3000 + (h.timer % 1000);
+                    const activeTime = cycleTime * 0.6;
+                    const active = h.timer % cycleTime < activeTime;
+                    const warning = (h.timer % cycleTime) > (cycleTime - 500);
+                    
+                    if (warning && !active) {
+                        ctx.fillStyle = '#FFA500'; // Orange warning
+                    } else {
+                        ctx.fillStyle = active ? '#FF4500' : '#8B0000';
+                    }
                     ctx.fillRect(h.x, h.y, h.width, h.height);
                     if (active) {
                         ParticleSystem.createExplosion(h.x + h.width/2, h.y, '#FFA500');
                     }
                 });
 
-                // Draw switches
-                this.switches.forEach(s => {
-                    ctx.fillStyle = s.active ? '#00FF00' : '#888';
-                    ctx.fillRect(s.x, s.y, 20, 20);
+                // Draw keys with glow
+                this.items.forEach(item => {
+                    if (item.type === 'key') {
+                        const glow = Math.sin(Date.now() / 200) * 0.3 + 0.7;
+                        ctx.globalAlpha = glow;
+                        ctx.fillStyle = '#FFD700';
+                        ctx.fillRect(item.x - 4, item.y - 4, 24, 24);
+                        ctx.globalAlpha = 1;
+                        ctx.drawImage(Sprites.key, item.x, item.y);
+                    }
                 });
 
-                // Draw items
-                this.items.forEach(item => {
-                    ctx.fillStyle = '#4169E1';
-                    ctx.fillRect(item.x, item.y, 16, 16);
-                });
+                // Draw door
+                ctx.drawImage(Sprites.door, this.doorX, this.doorY);
+                if (this.doorUnlocked) {
+                    ctx.fillStyle = 'rgba(0, 255, 0, 0.3)';
+                    ctx.fillRect(this.doorX - 5, this.doorY - 5, 42, 58);
+                    ctx.fillStyle = '#00FF00';
+                    ctx.font = 'bold 12px "Courier New"';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('EXIT', this.doorX + 16, this.doorY - 10);
+                    const doorDist = Math.sqrt((this.player.x - (this.doorX + 16)) ** 2 + (this.player.y - (this.doorY + 24)) ** 2);
+                    if (doorDist < 40) {
+                        ctx.fillText('Press E', this.doorX + 16, this.doorY - 25);
+                    }
+                    ctx.textAlign = 'left';
+                } else {
+                    ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+                    ctx.fillRect(this.doorX - 5, this.doorY - 5, 42, 58);
+                }
 
                 this.enemies.forEach(e => e.draw(ctx));
                 this.player.draw(ctx);
@@ -2802,13 +2833,27 @@
                 UI.draw(ctx, this.player, 2);
 
                 // Story
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-                ctx.fillRect(0, GAME_HEIGHT - 70, GAME_WIDTH, 70);
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+                ctx.fillRect(0, GAME_HEIGHT - 90, GAME_WIDTH, 90);
+                ctx.strokeStyle = '#FFD700';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(0, GAME_HEIGHT - 90, GAME_WIDTH, 90);
+                
                 ctx.fillStyle = '#FFD700';
-                ctx.font = '14px "Courier New"';
+                ctx.font = 'bold 18px "Courier New"';
                 ctx.textAlign = 'center';
-                ctx.fillText('Activate all switches to unlock the door!', GAME_WIDTH / 2, GAME_HEIGHT - 40);
-                ctx.fillText(`Switches: ${this.switches.filter(s => s.active).length}/3`, GAME_WIDTH / 2, GAME_HEIGHT - 20);
+                if (this.player.keys < 3) {
+                    ctx.fillText('NAVIGATE THE TIMED FIRE HAZARDS!', GAME_WIDTH / 2, GAME_HEIGHT - 60);
+                    ctx.font = '16px "Courier New"';
+                    ctx.fillText(`Keys: ${this.player.keys}/3`, GAME_WIDTH / 2, GAME_HEIGHT - 35);
+                    ctx.fillStyle = '#FFA500';
+                    ctx.font = '14px "Courier New"';
+                    ctx.fillText('Watch for orange warnings before fire activates!', GAME_WIDTH / 2, GAME_HEIGHT - 15);
+                } else {
+                    const pulse = Math.sin(Date.now() / 200) > 0;
+                    ctx.fillStyle = pulse ? '#00FF00' : '#FFD700';
+                    ctx.fillText('EXIT UNLOCKED!', GAME_WIDTH / 2, GAME_HEIGHT - 50);
+                }
                 ctx.textAlign = 'left';
             }
         };
