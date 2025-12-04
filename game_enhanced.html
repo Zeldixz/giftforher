@@ -275,8 +275,8 @@
                 if (!this.context) return;
                 
                 // Add variations to sounds to reduce repetitiveness
-                const variation = this.soundVariationIndex % 3;
-                this.soundVariationIndex++;
+                // Reset index periodically to prevent overflow
+                const variation = (this.soundVariationIndex++) % 3;
                 
                 const oscillator = this.context.createOscillator();
                 const gainNode = this.context.createGain();
@@ -383,7 +383,10 @@
                 this.musicOscillators.forEach(osc => {
                     try {
                         osc.stop();
-                    } catch(e) {}
+                    } catch(e) {
+                        // Oscillator may already be stopped - ignore error
+                        console.debug('Oscillator already stopped');
+                    }
                 });
                 this.musicOscillators = [];
                 this.currentMusic = null;
@@ -2713,12 +2716,17 @@
                 });
 
                 // Update fire hazards - UNIQUE MECHANIC
+                // Each hazard has a fixed offset for varied timing patterns
                 this.hazards.forEach(h => {
                     h.timer += dt;
-                    // Fire active 60% of the time, different patterns for each
-                    const cycleTime = 3000 + (h.timer % 1000);
-                    const activeTime = cycleTime * 0.6;
-                    if (h.timer % cycleTime < activeTime) {
+                    // Different cycle times for each hazard based on initial timer offset
+                    // Creates varied activation patterns
+                    const baseOffset = Math.floor(h.timer / 10000) * 10000; // Reset every 10s to prevent overflow
+                    const adjustedTimer = h.timer - baseOffset;
+                    const cycleTime = 3000;
+                    const activeTime = cycleTime * 0.6; // Active 60% of the time
+                    
+                    if (adjustedTimer % cycleTime < activeTime) {
                         if (this.player.x < h.x + h.width && this.player.x + this.player.width > h.x &&
                             this.player.y < h.y + h.height && this.player.y + this.player.height > h.y) {
                             if (!this.player.invincible) {
@@ -2780,12 +2788,14 @@
 
                 // Draw fire hazards with warning indicators
                 this.hazards.forEach(h => {
-                    const cycleTime = 3000 + (h.timer % 1000);
+                    const baseOffset = Math.floor(h.timer / 10000) * 10000;
+                    const adjustedTimer = h.timer - baseOffset;
+                    const cycleTime = 3000;
                     const activeTime = cycleTime * 0.6;
-                    const active = h.timer % cycleTime < activeTime;
-                    const warning = (h.timer % cycleTime) > (cycleTime - 500);
+                    const active = adjustedTimer % cycleTime < activeTime;
+                    const warning = (adjustedTimer % cycleTime) > (cycleTime - 500) && !active;
                     
-                    if (warning && !active) {
+                    if (warning) {
                         ctx.fillStyle = '#FFA500'; // Orange warning
                     } else {
                         ctx.fillStyle = active ? '#FF4500' : '#8B0000';
