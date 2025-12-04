@@ -476,29 +476,35 @@
                 return canvas;
             },
 
-            // Jose sprite (Link-style hero)
+            // Jose sprite (FNAF mini-game style - darker, more pixelated)
             createJose() {
                 return {
                     down: [
                         this.create(16, 16, (ctx) => {
-                            // Head (brown hair)
-                            ctx.fillStyle = '#8B4513';
+                            // Shadow outline (FNAF style)
+                            ctx.fillStyle = '#000';
+                            ctx.fillRect(3, 1, 10, 15);
+                            // Head (darker brown hair)
+                            ctx.fillStyle = '#5A3A1A';
                             ctx.fillRect(4, 2, 8, 4);
-                            // Face
-                            ctx.fillStyle = '#FFD4A3';
+                            // Face (paler)
+                            ctx.fillStyle = '#C7A882';
                             ctx.fillRect(5, 4, 6, 4);
-                            // Eyes
+                            // Eyes (bigger, more visible)
+                            ctx.fillStyle = '#FFF';
+                            ctx.fillRect(6, 5, 2, 2);
+                            ctx.fillRect(9, 5, 2, 2);
                             ctx.fillStyle = '#000';
                             ctx.fillRect(6, 5, 1, 1);
                             ctx.fillRect(9, 5, 1, 1);
-                            // Green tunic
-                            ctx.fillStyle = '#2D8B2D';
+                            // Dark shirt (not green)
+                            ctx.fillStyle = '#1a1a2e';
                             ctx.fillRect(4, 8, 8, 6);
                             // Belt
-                            ctx.fillStyle = '#8B4513';
+                            ctx.fillStyle = '#3a3a3a';
                             ctx.fillRect(4, 10, 8, 1);
-                            // Legs
-                            ctx.fillStyle = '#1a5c1a';
+                            // Legs (dark pants)
+                            ctx.fillStyle = '#0a0a1a';
                             ctx.fillRect(5, 14, 2, 2);
                             ctx.fillRect(9, 14, 2, 2);
                         }),
@@ -613,46 +619,73 @@
                 };
             },
 
-            // Gabby sprite (for cutscenes)
+            // Gabby sprite (FNAF mini-game style)
             createGabby() {
                 return this.create(16, 16, (ctx) => {
-                    // Blonde hair
-                    ctx.fillStyle = '#FFD700';
+                    // Shadow
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(3, 1, 10, 15);
+                    // Blonde hair (darker blonde)
+                    ctx.fillStyle = '#B8860B';
                     ctx.fillRect(4, 2, 8, 4);
-                    // Face
-                    ctx.fillStyle = '#FFD4A3';
+                    // Face (pale)
+                    ctx.fillStyle = '#C7A882';
                     ctx.fillRect(5, 4, 6, 4);
-                    // Eyes
-                    ctx.fillStyle = '#4169E1';
+                    // Eyes (brighter, more visible)
+                    ctx.fillStyle = '#FFF';
+                    ctx.fillRect(6, 5, 2, 2);
+                    ctx.fillRect(9, 5, 2, 2);
+                    ctx.fillStyle = '#6495ED';
                     ctx.fillRect(6, 5, 1, 1);
                     ctx.fillRect(9, 5, 1, 1);
                     // Smile
                     ctx.fillStyle = '#000';
                     ctx.fillRect(6, 7, 4, 1);
-                    // Blue dress
-                    ctx.fillStyle = '#4169E1';
+                    // Purple/Blue dress (darker)
+                    ctx.fillStyle = '#4A4A8A';
                     ctx.fillRect(4, 8, 8, 8);
                 });
             },
 
-            // Basic animatronic enemy
+            // FNAF-style animatronic (more detailed and menacing)
             createBasicAnimatronic() {
                 return this.create(16, 16, (ctx) => {
-                    // Body (gray/brown)
-                    ctx.fillStyle = '#555';
+                    // Shadow
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(3, 3, 11, 13);
+                    // Body (worn brown with visible endoskeleton parts)
+                    ctx.fillStyle = '#654321';
                     ctx.fillRect(4, 4, 8, 10);
-                    // Eyes (glowing red)
-                    ctx.fillStyle = '#FF0000';
-                    ctx.fillRect(5, 6, 2, 2);
-                    ctx.fillRect(9, 6, 2, 2);
-                    // Teeth
+                    // Endoskeleton showing through (metallic gray)
+                    ctx.fillStyle = '#505050';
+                    ctx.fillRect(4, 7, 2, 3);
+                    ctx.fillRect(10, 7, 2, 3);
+                    // Head/Face
+                    ctx.fillStyle = '#654321';
+                    ctx.fillRect(4, 3, 8, 5);
+                    // Eyes (WHITE with black pupils - classic FNAF)
                     ctx.fillStyle = '#FFF';
-                    ctx.fillRect(6, 10, 1, 2);
-                    ctx.fillRect(8, 10, 1, 2);
-                    // Ears
-                    ctx.fillStyle = '#555';
-                    ctx.fillRect(3, 3, 2, 3);
-                    ctx.fillRect(11, 3, 2, 3);
+                    ctx.fillRect(5, 4, 2, 3);
+                    ctx.fillRect(9, 4, 2, 3);
+                    // Pupils (small black dots)
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(6, 5, 1, 1);
+                    ctx.fillRect(10, 5, 1, 1);
+                    // Teeth (sharp and prominent)
+                    ctx.fillStyle = '#FFF';
+                    ctx.fillRect(5, 10, 1, 2);
+                    ctx.fillRect(7, 10, 1, 2);
+                    ctx.fillRect(9, 10, 1, 2);
+                    ctx.fillRect(11, 10, 1, 2);
+                    // Ears (round, FNAF Freddy-style)
+                    ctx.fillStyle = '#654321';
+                    ctx.fillRect(2, 2, 3, 3);
+                    ctx.fillRect(11, 2, 3, 3);
+                    // Bow tie
+                    ctx.fillStyle = '#8B0000';
+                    ctx.fillRect(6, 8, 4, 1);
+                    ctx.fillRect(5, 9, 2, 1);
+                    ctx.fillRect(9, 9, 2, 1);
                 });
             },
 
@@ -694,6 +727,8 @@
         Sprites.heart = Sprites.createHeart(false);
         Sprites.heartEmpty = Sprites.createHeart(true);
         Sprites.key = Sprites.createKey();
+        Sprites.door = Sprites.createDoor();
+        Sprites.wall = Sprites.createWall();
 
         // ===================================
         // PARTICLE SYSTEM
@@ -2223,61 +2258,61 @@
             scenes: [
                 { 
                     title: "THE DATE",
-                    text: "Jose: 'This place is amazing, right Gabby?'",
+                    text: "Jose: 'I'm so glad we came here tonight, Gabby.'",
                     duration: 3500,
                     color: '#FFD700'
                 },
                 {
                     title: "THE DATE", 
-                    text: "Gabby: 'Anything with you is perfect, Jose. ❤️'",
+                    text: "Gabby: 'Me too! This is the best date ever! ❤️'",
                     duration: 3500,
                     color: '#FF69B4'
                 },
                 { 
-                    title: "THE ATTACK",
-                    text: "***THE LIGHTS FLICKER***",
-                    duration: 2000,
+                    title: "SOMETHING'S WRONG",
+                    text: "***THE LIGHTS BEGIN TO FLICKER***",
+                    duration: 2200,
                     color: '#FF0000'
                 },
                 { 
                     title: "THE ATTACK",
-                    text: "The animatronics' eyes glow red...",
+                    text: "The animatronics' eyes suddenly glow red...",
                     duration: 2500,
                     color: '#8B0000'
                 },
                 { 
                     title: "THE ATTACK",
-                    text: "Gabby: 'JOSE! HELP ME!'",
+                    text: "Gabby: 'Jose! Something's wrong!'",
                     duration: 2500,
                     color: '#FF1493'
                 },
                 { 
                     title: "THE CAPTURE",
-                    text: "GOLDEN FREDDY appears from the shadows!",
+                    text: "A massive golden figure emerges from the shadows!",
                     duration: 2500,
                     color: '#DAA520'
                 },
                 { 
                     title: "THE CAPTURE",
-                    text: "He drags Gabby into the darkness...",
+                    text: "Golden Freddy grabs Gabby! 'JOSE! HELP!'",
                     duration: 3000,
-                    color: '#FFD700'
+                    color: '#FF6347'
                 },
                 { 
                     title: "JOSE'S DETERMINATION",
-                    text: "Jose: 'GABBY!! I'M COMING FOR YOU!'",
+                    text: "Jose: 'GABBY! I'M COMING! HOLD ON!'",
                     duration: 3000,
                     color: '#00FF00'
                 },
                 { 
                     title: "JOSE'S DETERMINATION",
-                    text: "Jose: 'Nothing will keep us apart!'",
-                    duration: 3000,
+                    text: "Jose: 'I'll fight through anything to save you!'",
+                    duration: 3200,
                     color: '#00FF00'
                 },
                 { 
                     title: "THE QUEST BEGINS",
-                    text: "A LOVE WORTH FIGHTING FOR...",
+                    text: "TRUE LOVE WILL LIGHT THE WAY...",
                     duration: 3500,
                     color: '#FF1493'
                 }
@@ -3382,16 +3417,23 @@
                 },
                 {
                     title: "REUNION",
-                    text: "Gabby: 'JOSE! You actually did it!'",
+                    text: "Gabby: 'Jose! I knew you'd come! I never doubted you!'",
                     duration: 3500,
                     color: '#FF1493',
                     action: 'together'
                 },
                 {
                     title: "REUNION",
-                    text: "Jose: 'I told you... nothing can keep us apart.'",
+                    text: "Jose: 'I'd cross any world for you, Gabby. Always.'",
                     duration: 3500,
                     color: '#00FF00',
+                    action: 'together'
+                },
+                {
+                    title: "REUNION",
+                    text: "Gabby: 'You're my hero... my everything.'",
+                    duration: 3200,
+                    color: '#FF69B4',
                     action: 'together'
                 },
                 {
