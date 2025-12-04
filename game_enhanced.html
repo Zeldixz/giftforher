@@ -333,46 +333,57 @@
                 return canvas;
             },
 
-            // Jose sprite (Link-style hero)
+            // Jose sprite (FNAF mini-game style - more pixelated and darker)
             createJose() {
                 return {
                     down: [
                         this.create(16, 16, (ctx) => {
-                            // Head (brown hair)
-                            ctx.fillStyle = '#8B4513';
+                            // Shadow outline (FNAF style)
+                            ctx.fillStyle = '#000';
+                            ctx.fillRect(3, 1, 10, 15);
+                            // Head (darker brown hair)
+                            ctx.fillStyle = '#5A3A1A';
                             ctx.fillRect(4, 2, 8, 4);
-                            // Face
-                            ctx.fillStyle = '#FFD4A3';
+                            // Face (paler)
+                            ctx.fillStyle = '#C7A882';
                             ctx.fillRect(5, 4, 6, 4);
-                            // Eyes
+                            // Eyes (bigger, more visible)
+                            ctx.fillStyle = '#FFF';
+                            ctx.fillRect(6, 5, 2, 2);
+                            ctx.fillRect(9, 5, 2, 2);
                             ctx.fillStyle = '#000';
                             ctx.fillRect(6, 5, 1, 1);
                             ctx.fillRect(9, 5, 1, 1);
-                            // Green tunic
-                            ctx.fillStyle = '#2D8B2D';
+                            // Dark shirt (not green - FNAF chars wear casual clothes)
+                            ctx.fillStyle = '#1a1a2e';
                             ctx.fillRect(4, 8, 8, 6);
                             // Belt
-                            ctx.fillStyle = '#8B4513';
+                            ctx.fillStyle = '#3a3a3a';
                             ctx.fillRect(4, 10, 8, 1);
-                            // Legs
-                            ctx.fillStyle = '#1a5c1a';
+                            // Legs (dark pants)
+                            ctx.fillStyle = '#0a0a1a';
                             ctx.fillRect(5, 14, 2, 2);
                             ctx.fillRect(9, 14, 2, 2);
                         }),
                         this.create(16, 16, (ctx) => {
-                            // Frame 2 (walking)
-                            ctx.fillStyle = '#8B4513';
+                            // Frame 2 (walking) - FNAF style
+                            ctx.fillStyle = '#000';
+                            ctx.fillRect(3, 1, 10, 15);
+                            ctx.fillStyle = '#5A3A1A';
                             ctx.fillRect(4, 2, 8, 4);
-                            ctx.fillStyle = '#FFD4A3';
+                            ctx.fillStyle = '#C7A882';
                             ctx.fillRect(5, 4, 6, 4);
+                            ctx.fillStyle = '#FFF';
+                            ctx.fillRect(6, 5, 2, 2);
+                            ctx.fillRect(9, 5, 2, 2);
                             ctx.fillStyle = '#000';
                             ctx.fillRect(6, 5, 1, 1);
                             ctx.fillRect(9, 5, 1, 1);
-                            ctx.fillStyle = '#2D8B2D';
+                            ctx.fillStyle = '#1a1a2e';
                             ctx.fillRect(4, 8, 8, 6);
-                            ctx.fillStyle = '#8B4513';
+                            ctx.fillStyle = '#3a3a3a';
                             ctx.fillRect(4, 10, 8, 1);
-                            ctx.fillStyle = '#1a5c1a';
+                            ctx.fillStyle = '#0a0a1a';
                             ctx.fillRect(4, 14, 2, 2);
                             ctx.fillRect(10, 14, 2, 2);
                         })
@@ -470,46 +481,73 @@
                 };
             },
 
-            // Gabby sprite (for cutscenes)
+            // Gabby sprite (FNAF mini-game style)
             createGabby() {
                 return this.create(16, 16, (ctx) => {
-                    // Blonde hair
-                    ctx.fillStyle = '#FFD700';
+                    // Shadow
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(3, 1, 10, 15);
+                    // Blonde hair (darker blonde)
+                    ctx.fillStyle = '#B8860B';
                     ctx.fillRect(4, 2, 8, 4);
-                    // Face
-                    ctx.fillStyle = '#FFD4A3';
+                    // Face (pale)
+                    ctx.fillStyle = '#C7A882';
                     ctx.fillRect(5, 4, 6, 4);
-                    // Eyes
-                    ctx.fillStyle = '#4169E1';
+                    // Eyes (brighter, more visible)
+                    ctx.fillStyle = '#FFF';
+                    ctx.fillRect(6, 5, 2, 2);
+                    ctx.fillRect(9, 5, 2, 2);
+                    ctx.fillStyle = '#6495ED';
                     ctx.fillRect(6, 5, 1, 1);
                     ctx.fillRect(9, 5, 1, 1);
                     // Smile
                     ctx.fillStyle = '#000';
                     ctx.fillRect(6, 7, 4, 1);
-                    // Blue dress
-                    ctx.fillStyle = '#4169E1';
+                    // Purple/Blue dress (darker)
+                    ctx.fillStyle = '#4A4A8A';
                     ctx.fillRect(4, 8, 8, 8);
                 });
             },
 
-            // Basic animatronic enemy
+            // FNAF-style animatronic (more detailed and menacing)
             createBasicAnimatronic() {
                 return this.create(16, 16, (ctx) => {
-                    // Body (gray/brown)
-                    ctx.fillStyle = '#555';
+                    // Shadow
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(3, 3, 11, 13);
+                    // Body (worn brown with visible endoskeleton parts)
+                    ctx.fillStyle = '#654321';
                     ctx.fillRect(4, 4, 8, 10);
-                    // Eyes (glowing red)
-                    ctx.fillStyle = '#FF0000';
-                    ctx.fillRect(5, 6, 2, 2);
-                    ctx.fillRect(9, 6, 2, 2);
-                    // Teeth
+                    // Endoskeleton showing through (metallic gray)
+                    ctx.fillStyle = '#505050';
+                    ctx.fillRect(4, 7, 2, 3);
+                    ctx.fillRect(10, 7, 2, 3);
+                    // Head/Face
+                    ctx.fillStyle = '#654321';
+                    ctx.fillRect(4, 3, 8, 5);
+                    // Eyes (WHITE with black pupils - classic FNAF)
                     ctx.fillStyle = '#FFF';
-                    ctx.fillRect(6, 10, 1, 2);
-                    ctx.fillRect(8, 10, 1, 2);
-                    // Ears
-                    ctx.fillStyle = '#555';
-                    ctx.fillRect(3, 3, 2, 3);
-                    ctx.fillRect(11, 3, 2, 3);
+                    ctx.fillRect(5, 4, 2, 3);
+                    ctx.fillRect(9, 4, 2, 3);
+                    // Pupils (small black dots)
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(6, 5, 1, 1);
+                    ctx.fillRect(10, 5, 1, 1);
+                    // Teeth (sharp and prominent)
+                    ctx.fillStyle = '#FFF';
+                    ctx.fillRect(5, 10, 1, 2);
+                    ctx.fillRect(7, 10, 1, 2);
+                    ctx.fillRect(9, 10, 1, 2);
+                    ctx.fillRect(11, 10, 1, 2);
+                    // Ears (round, FNAF Freddy-style)
+                    ctx.fillStyle = '#654321';
+                    ctx.fillRect(2, 2, 3, 3);
+                    ctx.fillRect(11, 2, 3, 3);
+                    // Bow tie
+                    ctx.fillStyle = '#8B0000';
+                    ctx.fillRect(6, 8, 4, 1);
+                    ctx.fillRect(5, 9, 2, 1);
+                    ctx.fillRect(9, 9, 2, 1);
                 });
             },
 
@@ -541,6 +579,44 @@
                     // Key teeth
                     ctx.fillRect(9, 12, 2, 2);
                 });
+            },
+
+            // Door sprite (FNAF-style exit)
+            createDoor() {
+                return this.create(32, 48, (ctx) => {
+                    // Door frame
+                    ctx.fillStyle = '#2a2a2a';
+                    ctx.fillRect(0, 0, 32, 48);
+                    // Door panels
+                    ctx.fillStyle = '#4a3a2a';
+                    ctx.fillRect(2, 2, 28, 44);
+                    // Door panels detail
+                    ctx.fillStyle = '#3a2a1a';
+                    ctx.fillRect(4, 4, 24, 18);
+                    ctx.fillRect(4, 24, 24, 18);
+                    // Door handle
+                    ctx.fillStyle = '#DAA520';
+                    ctx.fillRect(24, 22, 4, 4);
+                    // Keyhole (if locked)
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(14, 24, 4, 2);
+                });
+            },
+
+            // Wall sprite for clear boundaries
+            createWall() {
+                return this.create(16, 16, (ctx) => {
+                    // Dark brick wall (FNAF pizzeria style)
+                    ctx.fillStyle = '#1a1a1a';
+                    ctx.fillRect(0, 0, 16, 16);
+                    // Brick lines
+                    ctx.fillStyle = '#0a0a0a';
+                    ctx.fillRect(0, 0, 16, 1);
+                    ctx.fillRect(0, 8, 16, 1);
+                    ctx.fillRect(0, 0, 1, 16);
+                    ctx.fillRect(8, 0, 1, 8);
+                    ctx.fillRect(8, 9, 1, 7);
+                });
             }
         };
 
@@ -551,6 +627,8 @@
         Sprites.heart = Sprites.createHeart(false);
         Sprites.heartEmpty = Sprites.createHeart(true);
         Sprites.key = Sprites.createKey();
+        Sprites.door = Sprites.createDoor();
+        Sprites.wall = Sprites.createWall();
 
         // ===================================
         // PARTICLE SYSTEM
