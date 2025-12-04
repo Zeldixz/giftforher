@@ -260,6 +260,8 @@
             sounds: {},
             music: {},
             currentMusic: null,
+            musicOscillators: [],
+            soundVariationIndex: 0,
 
             init() {
                 try {
@@ -269,9 +271,13 @@
                 }
             },
 
-            playSound(name) {
+            playSound(name, volume = 0.3) {
                 if (!this.context) return;
-                // Sound effects will be generated procedurally
+                
+                // Add variations to sounds to reduce repetitiveness
+                // Reset index periodically to prevent overflow
+                const variation = (this.soundVariationIndex++) % 3;
+                
                 const oscillator = this.context.createOscillator();
                 const gainNode = this.context.createGain();
                 
@@ -280,39 +286,109 @@
                 
                 switch(name) {
                     case 'sword':
-                        oscillator.frequency.value = 200;
+                        // Add pitch variation
+                        oscillator.frequency.value = 200 + (variation * 50);
                         oscillator.type = 'square';
-                        gainNode.gain.setValueAtTime(0.3, this.context.currentTime);
+                        gainNode.gain.setValueAtTime(volume, this.context.currentTime);
                         gainNode.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + 0.1);
                         oscillator.start();
                         oscillator.stop(this.context.currentTime + 0.1);
                         break;
                     case 'hit':
-                        oscillator.frequency.value = 100;
+                        // Variation in hit sounds
+                        oscillator.frequency.value = 100 - (variation * 20);
                         oscillator.type = 'sawtooth';
-                        gainNode.gain.setValueAtTime(0.3, this.context.currentTime);
+                        gainNode.gain.setValueAtTime(volume, this.context.currentTime);
                         gainNode.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + 0.2);
                         oscillator.start();
                         oscillator.stop(this.context.currentTime + 0.2);
                         break;
                     case 'pickup':
-                        oscillator.frequency.value = 800;
+                        // Different pickup tones
+                        const freqs = [800, 900, 1000];
+                        oscillator.frequency.value = freqs[variation];
                         oscillator.type = 'sine';
-                        gainNode.gain.setValueAtTime(0.3, this.context.currentTime);
+                        gainNode.gain.setValueAtTime(volume, this.context.currentTime);
                         gainNode.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + 0.3);
                         oscillator.start();
                         oscillator.stop(this.context.currentTime + 0.3);
+                        break;
+                    case 'door':
+                        // Door unlock sound
+                        oscillator.frequency.value = 400;
+                        oscillator.type = 'square';
+                        gainNode.gain.setValueAtTime(volume, this.context.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + 0.5);
+                        oscillator.start();
+                        oscillator.stop(this.context.currentTime + 0.5);
+                        break;
+                    case 'jumpscare':
+                        // Scary sound
+                        oscillator.frequency.value = 50;
+                        oscillator.type = 'sawtooth';
+                        gainNode.gain.setValueAtTime(volume, this.context.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + 0.8);
+                        oscillator.start();
+                        oscillator.stop(this.context.currentTime + 0.8);
                         break;
                 }
             },
 
             playMusic(name) {
-                // Music will be simple looping tones for now
                 if (this.currentMusic === name) return;
+                this.stopMusic();
                 this.currentMusic = name;
+                
+                if (!this.context) return;
+                
+                // Create varied ambient music for each level
+                const createMusicOscillator = (freq, type, gainValue) => {
+                    const osc = this.context.createOscillator();
+                    const gain = this.context.createGain();
+                    osc.type = type;
+                    osc.frequency.value = freq;
+                    gain.gain.value = gainValue;
+                    osc.connect(gain);
+                    gain.connect(this.context.destination);
+                    osc.start();
+                    return osc;
+                };
+                
+                // Different music for different contexts
+                switch(name) {
+                    case 'level1':
+                        this.musicOscillators.push(createMusicOscillator(110, 'sine', 0.05));
+                        this.musicOscillators.push(createMusicOscillator(165, 'sine', 0.03));
+                        break;
+                    case 'level2':
+                        this.musicOscillators.push(createMusicOscillator(98, 'triangle', 0.05));
+                        this.musicOscillators.push(createMusicOscillator(147, 'sine', 0.03));
+                        break;
+                    case 'level3':
+                        this.musicOscillators.push(createMusicOscillator(123, 'sawtooth', 0.04));
+                        this.musicOscillators.push(createMusicOscillator(185, 'triangle', 0.02));
+                        break;
+                    case 'boss':
+                        this.musicOscillators.push(createMusicOscillator(82, 'sawtooth', 0.06));
+                        this.musicOscillators.push(createMusicOscillator(123, 'square', 0.04));
+                        break;
+                    case 'victory':
+                        this.musicOscillators.push(createMusicOscillator(262, 'sine', 0.05));
+                        this.musicOscillators.push(createMusicOscillator(330, 'sine', 0.04));
+                        break;
+                }
             },
 
             stopMusic() {
+                this.musicOscillators.forEach(osc => {
+                    try {
+                        osc.stop();
+                    } catch(e) {
+                        // Oscillator may already be stopped - ignore error
+                        console.debug('Oscillator already stopped');
+                    }
+                });
+                this.musicOscillators = [];
                 this.currentMusic = null;
             }
         };
@@ -617,6 +693,100 @@
                     ctx.fillRect(8, 0, 1, 8);
                     ctx.fillRect(8, 9, 1, 7);
                 });
+            },
+
+            // Golden Freddy sprite - detailed bear (not just a square!)
+            createGoldenFreddy() {
+                return this.create(48, 48, (ctx) => {
+                    // Shadow
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(8, 8, 34, 40);
+                    
+                    // Ears (round)
+                    ctx.fillStyle = '#B8860B'; // Dark gold
+                    ctx.fillRect(6, 4, 12, 10);
+                    ctx.fillRect(30, 4, 12, 10);
+                    ctx.fillStyle = '#8B7500'; // Darker gold for inner ear
+                    ctx.fillRect(9, 7, 6, 4);
+                    ctx.fillRect(33, 7, 6, 4);
+                    
+                    // Head (large bear head)
+                    ctx.fillStyle = '#FFD700'; // Bright gold
+                    ctx.fillRect(10, 10, 28, 24);
+                    // Head shading
+                    ctx.fillStyle = '#B8860B';
+                    ctx.fillRect(10, 10, 28, 2);
+                    ctx.fillRect(10, 32, 28, 2);
+                    
+                    // Snout/muzzle
+                    ctx.fillStyle = '#F0E68C'; // Light gold
+                    ctx.fillRect(16, 22, 16, 10);
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(22, 28, 4, 3); // Nose
+                    
+                    // Eyes (WHITE with small pupils - FNAF style)
+                    ctx.fillStyle = '#FFF';
+                    ctx.fillRect(14, 16, 6, 6);
+                    ctx.fillRect(28, 16, 6, 6);
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(17, 19, 2, 2);
+                    ctx.fillRect(31, 19, 2, 2);
+                    
+                    // Eyebrows (angry expression)
+                    ctx.fillStyle = '#8B7500';
+                    ctx.fillRect(12, 14, 8, 2);
+                    ctx.fillRect(28, 14, 8, 2);
+                    
+                    // Teeth (sharp and menacing)
+                    ctx.fillStyle = '#FFF';
+                    ctx.fillRect(18, 30, 2, 4);
+                    ctx.fillRect(22, 30, 2, 4);
+                    ctx.fillRect(26, 30, 2, 4);
+                    ctx.fillRect(30, 30, 2, 4);
+                    
+                    // Body
+                    ctx.fillStyle = '#FFD700';
+                    ctx.fillRect(12, 34, 24, 10);
+                    // Bow tie (black)
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(20, 36, 8, 3);
+                    ctx.fillRect(18, 37, 4, 2);
+                    ctx.fillRect(26, 37, 4, 2);
+                    
+                    // Endoskeleton showing through (worn parts)
+                    ctx.fillStyle = '#505050';
+                    ctx.fillRect(12, 38, 3, 3);
+                    ctx.fillRect(33, 38, 3, 3);
+                });
+            },
+
+            // 8-bit heart icon (replaces emoji)
+            create8BitHeart() {
+                return this.create(12, 12, (ctx) => {
+                    ctx.fillStyle = '#FF1493';
+                    // 8-bit heart
+                    ctx.fillRect(2, 2, 3, 2);
+                    ctx.fillRect(7, 2, 3, 2);
+                    ctx.fillRect(1, 4, 10, 3);
+                    ctx.fillRect(2, 7, 8, 2);
+                    ctx.fillRect(3, 9, 6, 1);
+                    ctx.fillRect(4, 10, 4, 1);
+                    ctx.fillRect(5, 11, 2, 1);
+                });
+            },
+
+            // 8-bit sparkle icon (replaces emoji)
+            create8BitSparkle() {
+                return this.create(12, 12, (ctx) => {
+                    ctx.fillStyle = '#FFD700';
+                    // 8-bit sparkle/star
+                    ctx.fillRect(5, 0, 2, 12);
+                    ctx.fillRect(0, 5, 12, 2);
+                    ctx.fillRect(2, 2, 2, 2);
+                    ctx.fillRect(8, 2, 2, 2);
+                    ctx.fillRect(2, 8, 2, 2);
+                    ctx.fillRect(8, 8, 2, 2);
+                });
             }
         };
 
@@ -629,6 +799,9 @@
         Sprites.key = Sprites.createKey();
         Sprites.door = Sprites.createDoor();
         Sprites.wall = Sprites.createWall();
+        Sprites.goldenFreddy = Sprites.createGoldenFreddy();
+        Sprites.icon8BitHeart = Sprites.create8BitHeart();
+        Sprites.icon8BitSparkle = Sprites.create8BitSparkle();
 
         // ===================================
         // PARTICLE SYSTEM
@@ -1949,62 +2122,74 @@
             textTimer: 0,
             scenes: [
                 { 
-                    title: "THE DATE",
-                    text: "Jose: 'This place is amazing, right Gabby?'",
-                    duration: 3500,
+                    title: "A ROMANTIC EVENING",
+                    text: "Jose: 'Hey darling, I'm enjoying the night here at Freddys. How are you liking our date, Gabby?'",
+                    duration: 4500,
                     color: '#FFD700'
                 },
                 {
-                    title: "THE DATE", 
-                    text: "Gabby: 'Anything with you is perfect, Jose. ❤️'",
-                    duration: 3500,
+                    title: "A ROMANTIC EVENING", 
+                    text: "Gabby: 'I'm really enjoying it here! I hope we can come here more often. Being with you makes everything special.'",
+                    duration: 5000,
                     color: '#FF69B4'
                 },
+                {
+                    title: "A ROMANTIC EVENING",
+                    text: "Jose: 'Every moment with you is an adventure, Gabby. You're my whole world.'",
+                    duration: 4000,
+                    color: '#FFD700'
+                },
                 { 
-                    title: "THE ATTACK",
+                    title: "SOMETHING'S WRONG",
                     text: "***THE LIGHTS FLICKER***",
                     duration: 2000,
                     color: '#FF0000'
                 },
                 { 
                     title: "THE ATTACK",
-                    text: "The animatronics' eyes glow red...",
-                    duration: 2500,
+                    text: "The animatronics awaken... eyes glowing red in the darkness...",
+                    duration: 3000,
                     color: '#8B0000'
                 },
                 { 
                     title: "THE ATTACK",
+                    text: "Gabby: 'Jose! What's happening?!'",
+                    duration: 2500,
+                    color: '#FF1493'
+                },
+                { 
+                    title: "GOLDEN FREDDY",
+                    text: "A massive golden bear emerges from the shadows...",
+                    duration: 3000,
+                    color: '#DAA520'
+                },
+                { 
+                    title: "THE CAPTURE",
+                    text: "Golden Freddy grabs Gabby!",
+                    duration: 2500,
+                    color: '#FFD700'
+                },
+                {
+                    title: "THE CAPTURE",
                     text: "Gabby: 'JOSE! HELP ME!'",
                     duration: 2500,
                     color: '#FF1493'
                 },
                 { 
-                    title: "THE CAPTURE",
-                    text: "GOLDEN FREDDY appears from the shadows!",
-                    duration: 2500,
-                    color: '#DAA520'
-                },
-                { 
-                    title: "THE CAPTURE",
-                    text: "He drags Gabby into the darkness...",
-                    duration: 3000,
-                    color: '#FFD700'
-                },
-                { 
                     title: "JOSE'S DETERMINATION",
-                    text: "Jose: 'GABBY!! I'M COMING FOR YOU!'",
+                    text: "Jose: 'GABBY!! I'M COMING FOR YOU! HOLD ON!'",
                     duration: 3000,
                     color: '#00FF00'
                 },
                 { 
                     title: "JOSE'S DETERMINATION",
-                    text: "Jose: 'Nothing will keep us apart!'",
-                    duration: 3000,
+                    text: "Jose: 'Nothing in this world will keep us apart! I swear it!'",
+                    duration: 3500,
                     color: '#00FF00'
                 },
                 { 
                     title: "THE QUEST BEGINS",
-                    text: "A LOVE WORTH FIGHTING FOR...",
+                    text: "TRUE LOVE CONQUERS ALL FEARS...",
                     duration: 3500,
                     color: '#FF1493'
                 }
@@ -2072,9 +2257,9 @@
                 ctx.fillText(currentScene.title, GAME_WIDTH / 2, 150);
 
                 // Animated visual depending on scene
-                if (this.scene < 2) {
-                    // Draw Jose and Gabby at table
-                    ctx.drawImage(Sprites.jose.down[0], 320, 240, 48, 48);
+                if (this.scene < 3) {
+                    // Draw Jose and Gabby at table (romantic date scene)
+                    ctx.drawImage(Sprites.jose.down[0], 300, 240, 48, 48);
                     ctx.drawImage(Sprites.gabby, 420, 240, 48, 48);
                     // Table with pizza
                     ctx.fillStyle = '#8B4513';
@@ -2083,36 +2268,61 @@
                     ctx.beginPath();
                     ctx.arc(400, 300, 20, 0, Math.PI * 2);
                     ctx.fill();
-                } else if (this.scene >= 7) {
-                    // Draw beating heart
-                    const heartBeat = Math.sin(this.timer / 200) * 8 + 40;
-                    ctx.fillStyle = '#FF1493';
-                    ctx.font = `${heartBeat}px Arial`;
-                    ctx.fillText('❤️', GAME_WIDTH / 2, GAME_HEIGHT / 2 - 40);
+                    // 8-bit hearts floating
+                    for (let i = 0; i < 3; i++) {
+                        const hx = 380 + i * 20 + Math.sin(this.timer / 300 + i) * 5;
+                        const hy = 220 - Math.abs(Math.sin(this.timer / 500 + i)) * 15;
+                        ctx.drawImage(Sprites.icon8BitHeart, hx, hy, 12, 12);
+                    }
+                } else if (this.scene >= 6 && this.scene <= 8) {
+                    // Draw Golden Freddy bear (NOT just a square!)
+                    const goldenFreddyX = GAME_WIDTH / 2 - 24;
+                    const goldenFreddyY = GAME_HEIGHT / 2 - 80;
+                    ctx.drawImage(Sprites.goldenFreddy, goldenFreddyX, goldenFreddyY);
                     
-                    // Sparkles around heart
+                    // Glowing red eyes effect
+                    const eyeGlow = Math.sin(this.timer / 100) * 0.5 + 0.5;
+                    ctx.fillStyle = `rgba(255, 0, 0, ${eyeGlow})`;
+                    ctx.shadowBlur = 20;
+                    ctx.shadowColor = '#FF0000';
+                    ctx.fillRect(goldenFreddyX + 14, goldenFreddyY + 16, 6, 6);
+                    ctx.fillRect(goldenFreddyX + 28, goldenFreddyY + 16, 6, 6);
+                    ctx.shadowBlur = 0;
+                    
+                    // Draw Gabby being held
+                    if (this.scene >= 7) {
+                        ctx.drawImage(Sprites.gabby, goldenFreddyX + 12, goldenFreddyY + 50, 24, 24);
+                    }
+                } else if (this.scene >= 9) {
+                    // Draw 8-bit beating heart (instead of emoji)
+                    const heartScale = 3 + Math.sin(this.timer / 200) * 0.5;
+                    const heartSize = 12 * heartScale;
+                    ctx.save();
+                    ctx.translate(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 40);
+                    ctx.scale(heartScale, heartScale);
+                    ctx.drawImage(Sprites.icon8BitHeart, -6, -6);
+                    ctx.restore();
+                    
+                    // 8-bit sparkles around heart
                     for (let i = 0; i < 20; i++) {
                         const angle = (this.timer / 20 + i * 18) * Math.PI / 180;
                         const radius = 80 + Math.sin(this.timer / 100 + i) * 20;
                         const sx = GAME_WIDTH / 2 + Math.cos(angle) * radius;
                         const sy = GAME_HEIGHT / 2 - 40 + Math.sin(angle) * radius;
-                        ctx.fillStyle = i % 2 === 0 ? '#FFD700' : '#FF69B4';
-                        ctx.fillRect(sx, sy, 3, 3);
+                        ctx.drawImage(Sprites.icon8BitSparkle, sx - 6, sy - 6);
                     }
                 } else {
-                    // Draw menacing animatronic silhouette
-                    ctx.fillStyle = '#222';
-                    ctx.fillRect(GAME_WIDTH / 2 - 40, GAME_HEIGHT / 2 - 100, 80, 100);
+                    // Draw basic animatronic silhouette (scenes 3-5)
+                    const animX = GAME_WIDTH / 2 - 24;
+                    const animY = GAME_HEIGHT / 2 - 60;
+                    ctx.drawImage(Sprites.basicEnemy, animX, animY, 48, 48);
                     // Glowing red eyes with intensity
                     const eyeGlow = Math.sin(this.timer / 100) * 0.5 + 0.5;
                     ctx.fillStyle = `rgba(255, 0, 0, ${eyeGlow})`;
-                    ctx.fillRect(GAME_WIDTH / 2 - 25, GAME_HEIGHT / 2 - 70, 15, 15);
-                    ctx.fillRect(GAME_WIDTH / 2 + 10, GAME_HEIGHT / 2 - 70, 15, 15);
-                    // Eye glow effect
                     ctx.shadowBlur = 20;
                     ctx.shadowColor = '#FF0000';
-                    ctx.fillRect(GAME_WIDTH / 2 - 25, GAME_HEIGHT / 2 - 70, 15, 15);
-                    ctx.fillRect(GAME_WIDTH / 2 + 10, GAME_HEIGHT / 2 - 70, 15, 15);
+                    ctx.fillRect(animX + 10, animY + 8, 8, 8);
+                    ctx.fillRect(animX + 30, animY + 8, 8, 8);
                     ctx.shadowBlur = 0;
                 }
 
@@ -2125,15 +2335,33 @@
 
                 // Display text with typing animation
                 ctx.fillStyle = '#FFF';
-                ctx.font = '22px "Courier New"';
+                ctx.font = '20px "Courier New"';
                 ctx.textAlign = 'center';
                 const displayText = currentScene.text.substring(0, this.charIndex);
-                ctx.fillText(displayText, GAME_WIDTH / 2, GAME_HEIGHT - 90);
+                
+                // Word wrap for long dialogue
+                const words = displayText.split(' ');
+                let line = '';
+                let y = GAME_HEIGHT - 110;
+                const maxWidth = GAME_WIDTH - 120;
+                
+                for (let i = 0; i < words.length; i++) {
+                    const testLine = line + words[i] + ' ';
+                    const metrics = ctx.measureText(testLine);
+                    if (metrics.width > maxWidth && i > 0) {
+                        ctx.fillText(line, GAME_WIDTH / 2, y);
+                        line = words[i] + ' ';
+                        y += 25;
+                    } else {
+                        line = testLine;
+                    }
+                }
+                ctx.fillText(line, GAME_WIDTH / 2, y);
 
                 // Cursor blink if text not complete
                 if (this.charIndex < currentScene.text.length && Math.floor(this.timer / 300) % 2 === 0) {
                     ctx.fillStyle = currentScene.color;
-                    ctx.fillText('▮', GAME_WIDTH / 2 + ctx.measureText(displayText).width / 2 + 5, GAME_HEIGHT - 90);
+                    ctx.fillText('▮', GAME_WIDTH / 2 + ctx.measureText(line).width / 2 + 5, y);
                 }
 
                 // Prompt
@@ -2157,13 +2385,16 @@
 
             enter() {
                 // Initialize player
-                this.player = new Player(GAME_WIDTH / 2, GAME_HEIGHT / 2);
+                this.player = new Player(GAME_WIDTH / 2, GAME_HEIGHT - 50);
+                this.doorX = GAME_WIDTH / 2 - 16;
+                this.doorY = 50;
+                this.doorUnlocked = false;
 
-                // Create enemies
+                // Create enemies - they're optional challenges for extra loot
                 for (let i = 0; i < 4; i++) {
                     const enemy = new Enemy(
                         100 + i * 150,
-                        100 + (i % 2) * 200,
+                        150 + (i % 2) * 200,
                         3, // health
                         1  // speed
                     );
@@ -2176,11 +2407,11 @@
                     this.enemies.push(enemy);
                 }
 
-                // Create items (keys)
+                // Create items (keys) - strategically placed
                 this.items = [
-                    { x: 100, y: 100, type: 'key' },
+                    { x: 150, y: 150, type: 'key' },
                     { x: 600, y: 400, type: 'key' },
-                    { x: 400, y: 200, type: 'key' }
+                    { x: 400, y: 250, type: 'key' }
                 ];
 
                 Audio.playMusic('level1');
@@ -2190,7 +2421,7 @@
                 // Update player
                 this.player.update(dt);
 
-                // Update enemies
+                // Update enemies (optional obstacles)
                 this.enemies = this.enemies.filter(enemy => {
                     enemy.update(dt, this.player);
 
@@ -2223,10 +2454,27 @@
                 // Update particles
                 ParticleSystem.update(dt);
 
-                // Check win condition (all keys collected)
-                if (this.player.keys >= 3 && this.enemies.length === 0) {
-                    // Progress to boss or next level
-                    // GameState.setState('BOSS_1');
+                // Check win condition - ONLY KEYS NEEDED!
+                if (this.player.keys >= 3 && !this.doorUnlocked) {
+                    this.doorUnlocked = true;
+                    Audio.playSound('door');
+                    ParticleSystem.createExplosion(this.doorX + 16, this.doorY + 24, '#00FF00');
+                }
+                
+                // Check if player reaches door
+                if (this.doorUnlocked) {
+                    const doorDist = Math.sqrt(
+                        (this.player.x - (this.doorX + 16)) ** 2 + 
+                        (this.player.y - (this.doorY + 24)) ** 2
+                    );
+                    
+                    if (doorDist < 40) {
+                        // Show prompt to enter
+                        if (Input.justPressed('interact')) {
+                            Audio.stopMusic();
+                            GameState.setState('BOSS_1');
+                        }
+                    }
                 }
             },
 
@@ -2248,9 +2496,51 @@
                 // Draw items
                 this.items.forEach(item => {
                     if (item.type === 'key') {
+                        // Pulsing glow effect on keys
+                        const glow = Math.sin(Date.now() / 200) * 0.3 + 0.7;
+                        ctx.globalAlpha = glow;
+                        ctx.fillStyle = '#FFD700';
+                        ctx.fillRect(item.x - 4, item.y - 4, 24, 24);
+                        ctx.globalAlpha = 1;
                         ctx.drawImage(Sprites.key, item.x, item.y);
                     }
                 });
+
+                // Draw door at top
+                ctx.drawImage(Sprites.door, this.doorX, this.doorY);
+                
+                // Door lock/unlock indicator
+                if (this.doorUnlocked) {
+                    // Green glow and "EXIT" text
+                    ctx.fillStyle = 'rgba(0, 255, 0, 0.3)';
+                    ctx.fillRect(this.doorX - 5, this.doorY - 5, 42, 58);
+                    ctx.fillStyle = '#00FF00';
+                    ctx.font = 'bold 12px "Courier New"';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('EXIT', this.doorX + 16, this.doorY - 10);
+                    ctx.fillText('↑', this.doorX + 16, this.doorY + 65);
+                    
+                    // Prompt if player is near
+                    const doorDist = Math.sqrt(
+                        (this.player.x - (this.doorX + 16)) ** 2 + 
+                        (this.player.y - (this.doorY + 24)) ** 2
+                    );
+                    if (doorDist < 40) {
+                        ctx.fillStyle = '#00FF00';
+                        ctx.font = 'bold 14px "Courier New"';
+                        ctx.fillText('Press E to enter', this.doorX + 16, this.doorY - 25);
+                    }
+                    ctx.textAlign = 'left';
+                } else {
+                    // Red lock indicator
+                    ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+                    ctx.fillRect(this.doorX - 5, this.doorY - 5, 42, 58);
+                    ctx.fillStyle = '#FF0000';
+                    ctx.font = 'bold 12px "Courier New"';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('LOCKED', this.doorX + 16, this.doorY - 10);
+                    ctx.textAlign = 'left';
+                }
 
                 // Draw enemies
                 this.enemies.forEach(enemy => enemy.draw(ctx));
@@ -2264,14 +2554,33 @@
                 // Draw UI
                 UI.draw(ctx, this.player, 1);
 
-                // Story text
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-                ctx.fillRect(0, GAME_HEIGHT - 80, GAME_WIDTH, 80);
+                // Story text with improved messaging
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+                ctx.fillRect(0, GAME_HEIGHT - 90, GAME_WIDTH, 90);
+                ctx.strokeStyle = '#FFD700';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(0, GAME_HEIGHT - 90, GAME_WIDTH, 90);
+                
                 ctx.fillStyle = '#FFD700';
-                ctx.font = '16px "Courier New"';
+                ctx.font = 'bold 18px "Courier New"';
                 ctx.textAlign = 'center';
-                ctx.fillText('Find 3 keys to unlock the kitchen door!', GAME_WIDTH / 2, GAME_HEIGHT - 50);
-                ctx.fillText(`Keys: ${this.player.keys}/3`, GAME_WIDTH / 2, GAME_HEIGHT - 25);
+                
+                if (this.player.keys < 3) {
+                    ctx.fillText('COLLECT ALL 3 KEYS TO UNLOCK THE EXIT', GAME_WIDTH / 2, GAME_HEIGHT - 60);
+                    ctx.font = '16px "Courier New"';
+                    ctx.fillText(`Keys Found: ${this.player.keys}/3`, GAME_WIDTH / 2, GAME_HEIGHT - 35);
+                    ctx.fillStyle = '#AAA';
+                    ctx.font = '14px "Courier New"';
+                    ctx.fillText('Defeating enemies is optional!', GAME_WIDTH / 2, GAME_HEIGHT - 15);
+                } else {
+                    const pulse = Math.sin(Date.now() / 200) > 0;
+                    ctx.fillStyle = pulse ? '#00FF00' : '#FFD700';
+                    ctx.fillText('EXIT UNLOCKED! HEAD TO THE DOOR!', GAME_WIDTH / 2, GAME_HEIGHT - 60);
+                    ctx.fillStyle = '#00FF00';
+                    ctx.font = '16px "Courier New"';
+                    ctx.fillText('Go to the top of the room', GAME_WIDTH / 2, GAME_HEIGHT - 35);
+                    ctx.fillText('Press E at the door to continue', GAME_WIDTH / 2, GAME_HEIGHT - 15);
+                }
                 ctx.textAlign = 'left';
             }
         };
@@ -2357,10 +2666,13 @@
             switches: [],
 
             enter() {
-                this.player = GameState.states['BOSS_1']?.player || new Player(50, GAME_HEIGHT / 2);
+                this.player = GameState.states['BOSS_1']?.player || new Player(50, GAME_HEIGHT - 50);
                 this.player.keys = 0;
+                this.doorX = GAME_WIDTH - 80;
+                this.doorY = 50;
+                this.doorUnlocked = false;
 
-                // Chef enemies
+                // Chef enemies - optional challenges
                 for (let i = 0; i < 3; i++) {
                     const enemy = new Enemy(
                         200 + i * 200,
@@ -2372,31 +2684,28 @@
                     this.enemies.push(enemy);
                 }
 
-                // Fire hazards
+                // UNIQUE MECHANIC: Timed fire hazards that require timing to navigate
                 this.hazards = [
                     { x: 200, y: 300, width: 50, height: 50, type: 'fire', timer: 0 },
-                    { x: 500, y: 200, width: 50, height: 50, type: 'fire', timer: 1000 },
-                    { x: 300, y: 450, width: 50, height: 50, type: 'fire', timer: 500 }
+                    { x: 400, y: 200, width: 50, height: 50, type: 'fire', timer: 1000 },
+                    { x: 300, y: 450, width: 50, height: 50, type: 'fire', timer: 500 },
+                    { x: 500, y: 350, width: 50, height: 50, type: 'fire', timer: 1500 }
                 ];
 
-                // Switches for puzzle
-                this.switches = [
-                    { x: 100, y: 100, active: false },
-                    { x: 700, y: 100, active: false },
-                    { x: 400, y: 500, active: false }
-                ];
-
-                // Bow and arrows
+                // Keys hidden around hazards
                 this.items = [
-                    { x: 650, y: 300, type: 'bow' },
-                    { x: 150, y: 400, type: 'arrows', amount: 10 }
+                    { x: 150, y: 150, type: 'key' },
+                    { x: 550, y: 450, type: 'key' },
+                    { x: 650, y: 200, type: 'key' }
                 ];
+
+                Audio.playMusic('level2');
             },
 
             update(dt) {
                 this.player.update(dt);
 
-                // Update enemies
+                // Update enemies (optional obstacles)
                 this.enemies = this.enemies.filter(enemy => {
                     enemy.update(dt, this.player);
                     const attackBox = this.player.getAttackBox();
@@ -2406,10 +2715,18 @@
                     return true;
                 });
 
-                // Update hazards
+                // Update fire hazards - UNIQUE MECHANIC
+                // Each hazard has a fixed offset for varied timing patterns
                 this.hazards.forEach(h => {
                     h.timer += dt;
-                    if (h.timer % 2000 < 1000) { // Active half the time
+                    // Different cycle times for each hazard based on initial timer offset
+                    // Creates varied activation patterns
+                    const baseOffset = Math.floor(h.timer / 10000) * 10000; // Reset every 10s to prevent overflow
+                    const adjustedTimer = h.timer - baseOffset;
+                    const cycleTime = 3000;
+                    const activeTime = cycleTime * 0.6; // Active 60% of the time
+                    
+                    if (adjustedTimer % cycleTime < activeTime) {
                         if (this.player.x < h.x + h.width && this.player.x + this.player.width > h.x &&
                             this.player.y < h.y + h.height && this.player.y + this.player.height > h.y) {
                             if (!this.player.invincible) {
@@ -2419,37 +2736,38 @@
                     }
                 });
 
-                // Check switches
-                this.switches.forEach(s => {
-                    const dist = Math.sqrt((s.x - this.player.x) ** 2 + (s.y - this.player.y) ** 2);
-                    if (dist < 30 && Input.isDown('interact')) {
-                        s.active = true;
-                        Audio.playSound('pickup');
-                    }
-                });
-
                 // Check items
                 this.items = this.items.filter(item => {
                     const dist = Math.sqrt((item.x - this.player.x) ** 2 + (item.y - this.player.y) ** 2);
-                    if (dist < 25) {
-                        if (item.type === 'bow') {
-                            this.player.hasBoots = true; // Using hasBoots as flag for bow
-                            Audio.playSound('pickup');
-                            return false;
-                        } else if (item.type === 'arrows') {
-                            this.player.arrows += item.amount;
-                            Audio.playSound('pickup');
-                            return false;
-                        }
+                    if (dist < 25 && item.type === 'key') {
+                        this.player.keys++;
+                        Audio.playSound('pickup');
+                        ParticleSystem.createExplosion(item.x, item.y, '#FFD700');
+                        return false;
                     }
                     return true;
                 });
 
                 ParticleSystem.update(dt);
 
-                // Win condition
-                if (this.switches.every(s => s.active) && this.enemies.length === 0) {
-                    GameState.setState('BOSS_2');
+                // Win condition - ONLY KEYS NEEDED!
+                if (this.player.keys >= 3 && !this.doorUnlocked) {
+                    this.doorUnlocked = true;
+                    Audio.playSound('door');
+                    ParticleSystem.createExplosion(this.doorX + 16, this.doorY + 24, '#00FF00');
+                }
+                
+                // Check if player reaches door
+                if (this.doorUnlocked) {
+                    const doorDist = Math.sqrt(
+                        (this.player.x - (this.doorX + 16)) ** 2 + 
+                        (this.player.y - (this.doorY + 24)) ** 2
+                    );
+                    
+                    if (doorDist < 40 && Input.justPressed('interact')) {
+                        Audio.stopMusic();
+                        GameState.setState('BOSS_2');
+                    }
                 }
             },
 
@@ -2468,27 +2786,56 @@
                     }
                 }
 
-                // Draw hazards
+                // Draw fire hazards with warning indicators
                 this.hazards.forEach(h => {
-                    const active = h.timer % 2000 < 1000;
-                    ctx.fillStyle = active ? '#FF4500' : '#8B0000';
+                    const baseOffset = Math.floor(h.timer / 10000) * 10000;
+                    const adjustedTimer = h.timer - baseOffset;
+                    const cycleTime = 3000;
+                    const activeTime = cycleTime * 0.6;
+                    const active = adjustedTimer % cycleTime < activeTime;
+                    const warning = (adjustedTimer % cycleTime) > (cycleTime - 500) && !active;
+                    
+                    if (warning) {
+                        ctx.fillStyle = '#FFA500'; // Orange warning
+                    } else {
+                        ctx.fillStyle = active ? '#FF4500' : '#8B0000';
+                    }
                     ctx.fillRect(h.x, h.y, h.width, h.height);
                     if (active) {
                         ParticleSystem.createExplosion(h.x + h.width/2, h.y, '#FFA500');
                     }
                 });
 
-                // Draw switches
-                this.switches.forEach(s => {
-                    ctx.fillStyle = s.active ? '#00FF00' : '#888';
-                    ctx.fillRect(s.x, s.y, 20, 20);
+                // Draw keys with glow
+                this.items.forEach(item => {
+                    if (item.type === 'key') {
+                        const glow = Math.sin(Date.now() / 200) * 0.3 + 0.7;
+                        ctx.globalAlpha = glow;
+                        ctx.fillStyle = '#FFD700';
+                        ctx.fillRect(item.x - 4, item.y - 4, 24, 24);
+                        ctx.globalAlpha = 1;
+                        ctx.drawImage(Sprites.key, item.x, item.y);
+                    }
                 });
 
-                // Draw items
-                this.items.forEach(item => {
-                    ctx.fillStyle = '#4169E1';
-                    ctx.fillRect(item.x, item.y, 16, 16);
-                });
+                // Draw door
+                ctx.drawImage(Sprites.door, this.doorX, this.doorY);
+                if (this.doorUnlocked) {
+                    ctx.fillStyle = 'rgba(0, 255, 0, 0.3)';
+                    ctx.fillRect(this.doorX - 5, this.doorY - 5, 42, 58);
+                    ctx.fillStyle = '#00FF00';
+                    ctx.font = 'bold 12px "Courier New"';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('EXIT', this.doorX + 16, this.doorY - 10);
+                    const doorDist = Math.sqrt((this.player.x - (this.doorX + 16)) ** 2 + (this.player.y - (this.doorY + 24)) ** 2);
+                    if (doorDist < 40) {
+                        ctx.fillText('Press E', this.doorX + 16, this.doorY - 25);
+                    }
+                    ctx.textAlign = 'left';
+                } else {
+                    ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+                    ctx.fillRect(this.doorX - 5, this.doorY - 5, 42, 58);
+                }
 
                 this.enemies.forEach(e => e.draw(ctx));
                 this.player.draw(ctx);
@@ -2496,13 +2843,27 @@
                 UI.draw(ctx, this.player, 2);
 
                 // Story
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-                ctx.fillRect(0, GAME_HEIGHT - 70, GAME_WIDTH, 70);
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+                ctx.fillRect(0, GAME_HEIGHT - 90, GAME_WIDTH, 90);
+                ctx.strokeStyle = '#FFD700';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(0, GAME_HEIGHT - 90, GAME_WIDTH, 90);
+                
                 ctx.fillStyle = '#FFD700';
-                ctx.font = '14px "Courier New"';
+                ctx.font = 'bold 18px "Courier New"';
                 ctx.textAlign = 'center';
-                ctx.fillText('Activate all switches to unlock the door!', GAME_WIDTH / 2, GAME_HEIGHT - 40);
-                ctx.fillText(`Switches: ${this.switches.filter(s => s.active).length}/3`, GAME_WIDTH / 2, GAME_HEIGHT - 20);
+                if (this.player.keys < 3) {
+                    ctx.fillText('NAVIGATE THE TIMED FIRE HAZARDS!', GAME_WIDTH / 2, GAME_HEIGHT - 60);
+                    ctx.font = '16px "Courier New"';
+                    ctx.fillText(`Keys: ${this.player.keys}/3`, GAME_WIDTH / 2, GAME_HEIGHT - 35);
+                    ctx.fillStyle = '#FFA500';
+                    ctx.font = '14px "Courier New"';
+                    ctx.fillText('Watch for orange warnings before fire activates!', GAME_WIDTH / 2, GAME_HEIGHT - 15);
+                } else {
+                    const pulse = Math.sin(Date.now() / 200) > 0;
+                    ctx.fillStyle = pulse ? '#00FF00' : '#FFD700';
+                    ctx.fillText('EXIT UNLOCKED!', GAME_WIDTH / 2, GAME_HEIGHT - 50);
+                }
                 ctx.textAlign = 'left';
             }
         };
@@ -3104,28 +3465,35 @@
                 },
                 {
                     title: "REUNION",
-                    text: "Gabby: 'JOSE! You actually did it!'",
-                    duration: 3500,
+                    text: "Gabby: 'Jose! I knew you'd come! I never doubted you for a second!'",
+                    duration: 4000,
                     color: '#FF1493',
                     action: 'together'
                 },
                 {
                     title: "REUNION",
-                    text: "Jose: 'I told you... nothing can keep us apart.'",
-                    duration: 3500,
+                    text: "Jose: 'I'd cross any world for you, Gabby. Nothing could keep us apart. You're my everything.'",
+                    duration: 4500,
                     color: '#00FF00',
                     action: 'together'
                 },
                 {
+                    title: "REUNION",
+                    text: "Gabby: 'You're my hero... my protector... my love. Thank you for saving me.'",
+                    duration: 4000,
+                    color: '#FF69B4',
+                    action: 'together'
+                },
+                {
                     title: "TRUE LOVE",
-                    text: "Press SPACE to embrace ❤️",
+                    text: "Press SPACE to embrace",
                     duration: 10000,
                     color: '#FF69B4',
                     action: 'hug_prompt'
                 },
                 {
                     title: "HAPPILY EVER AFTER",
-                    text: "They escape together as the pizzeria crumbles...",
+                    text: "Together, they escape as the pizzeria crumbles behind them...",
                     duration: 4000,
                     color: '#FFD700',
                     action: 'escape'
@@ -3252,7 +3620,7 @@
                     ctx.drawImage(Sprites.jose.down[0], joseX, y, 48, 48);
                     ctx.drawImage(Sprites.gabby, gabbyX, y, 48, 48);
                     
-                    // Floating hearts
+                    // Floating 8-bit hearts (not emojis!)
                     const numHearts = this.hugged ? 40 : 15;
                     for (let i = 0; i < numHearts; i++) {
                         const angle = (this.timer / 20 + i * (360 / numHearts)) * Math.PI / 180;
@@ -3260,10 +3628,12 @@
                         const hx = GAME_WIDTH / 2 + Math.cos(angle) * radius;
                         const hy = GAME_HEIGHT / 2 - 40 + Math.sin(angle) * radius - (this.timer / 50);
                         
-                        ctx.fillStyle = i % 3 === 0 ? '#FF1493' : (i % 3 === 1 ? '#FF69B4' : '#FFD700');
-                        ctx.font = `${12 + Math.sin(this.timer / 100 + i) * 4}px Arial`;
-                        ctx.textAlign = 'center';
-                        ctx.fillText('❤️', hx, hy % GAME_HEIGHT);
+                        const scale = 1 + Math.sin(this.timer / 100 + i) * 0.3;
+                        ctx.save();
+                        ctx.translate(hx, hy % GAME_HEIGHT);
+                        ctx.scale(scale, scale);
+                        ctx.drawImage(Sprites.icon8BitHeart, -6, -6);
+                        ctx.restore();
                     }
                     
                     if (this.hugged) {
@@ -3272,6 +3642,16 @@
                         ctx.beginPath();
                         ctx.arc(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 40, 100, 0, Math.PI * 2);
                         ctx.fill();
+                    }
+                    
+                    // Show 8-bit heart icon in hug prompt
+                    if (currentScene.action === 'hug_prompt') {
+                        const heartSize = 2 + Math.sin(this.timer / 200) * 0.5;
+                        ctx.save();
+                        ctx.translate(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 80);
+                        ctx.scale(heartSize, heartSize);
+                        ctx.drawImage(Sprites.icon8BitHeart, -6, -6);
+                        ctx.restore();
                     }
                 } else if (currentScene.action === 'escape') {
                     // Silhouettes running
@@ -3309,17 +3689,19 @@
                         "You are my heart, my joy, my everything.",
                         "",
                         "Love always and forever,",
-                        "Jose 💕",
+                        "Jose",
                         "",
                         "",
                         "Press SPACE to return to menu"
                     ];
                     
-                    // Draw heart frame
-                    ctx.fillStyle = '#FF1493';
-                    ctx.font = '60px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('❤️', GAME_WIDTH / 2, 100);
+                    // Draw 8-bit heart frame (not emoji!)
+                    const heartScale = 5 + Math.sin(this.timer / 300) * 0.5;
+                    ctx.save();
+                    ctx.translate(GAME_WIDTH / 2, 100);
+                    ctx.scale(heartScale, heartScale);
+                    ctx.drawImage(Sprites.icon8BitHeart, -6, -6);
+                    ctx.restore();
                     
                     // Draw messages
                     ctx.font = '18px "Courier New"';
